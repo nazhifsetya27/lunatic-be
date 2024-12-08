@@ -1,7 +1,7 @@
 const { Request } = require('../../../helper')
-const { collections } = require('./gedung.repository')
+const { collections } = require('./building.repository')
 
-exports.getAllGedung = async (req, res) => {
+exports.getAllBuilding = async (req, res) => {
   try {
     const data = await collections(req)
     Request.success(res, { message: 'Success', data })

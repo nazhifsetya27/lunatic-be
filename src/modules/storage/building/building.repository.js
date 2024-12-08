@@ -1,7 +1,7 @@
 const { Op } = require('sequelize')
 const { Models } = require('../../../sequelize/models')
 
-const { Gedung } = Models
+const { Building } = Models
 
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
@@ -26,7 +26,7 @@ exports.collections = async (req) => {
     where.deleted_at = { [Op.is]: null }
   }
 
-  const data = await Gedung.findAndCountAll(query)
+  const data = await Building.findAndCountAll(query)
   const total = data.count
   const totalPage = Math.ceil(total / page_size)
 
