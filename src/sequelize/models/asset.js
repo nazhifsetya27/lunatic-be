@@ -3,8 +3,8 @@ const { DataTypes } = require('sequelize')
 const uuid = require('uuid')
 const { sequelizeDB, Sequelize } = require('./config')
 
-const Floor = sequelizeDB.define(
-  'floors',
+const Asset = sequelizeDB.define(
+  'assets',
   {
     id: {
       allowNull: false,
@@ -20,9 +20,16 @@ const Floor = sequelizeDB.define(
       allowNull: false,
       unique: true,
     },
-    gedung_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
+    category: {
+      type: Sequelize.STRING(50),
+      comment: ['Furniture', 'Elektronik', 'Umum'],
+    },
+    quantity: {
+      type: Sequelize.INTEGER(),
+      unique: true,
+    },
+    room_id: {
+      type: Sequelize.STRING(36),
     },
     createdAt: {
       type: Sequelize.DATE,
@@ -32,7 +39,6 @@ const Floor = sequelizeDB.define(
     },
     deletedAt: {
       type: Sequelize.DATE,
-      allowNull: true,
     },
   },
   {
@@ -63,4 +69,4 @@ const Floor = sequelizeDB.define(
   }
 )
 
-module.exports = Floor
+module.exports = Asset

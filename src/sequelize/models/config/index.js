@@ -18,5 +18,15 @@ exports.sequelizeDB = new Sequelize.Sequelize(
     },
     logging: false,
     minifyAliases: true,
+    define: {
+      defaultScope: {
+        attributes: {
+          exclude: ['createdAt', 'updatedAt', 'deletedAt'],
+        },
+      },
+      underscored: true, // Use snake_case for column names
+      timestamps: true, // Enable createdAt/updatedAt timestamps globally
+      paranoid: true, // Enable soft deletes globally (deletedAt column)
+    },
   }
 )
