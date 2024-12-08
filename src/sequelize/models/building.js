@@ -3,8 +3,8 @@ const { DataTypes } = require('sequelize')
 const uuid = require('uuid')
 const { sequelizeDB, Sequelize } = require('./config')
 
-const Gedung = sequelizeDB.define(
-  'gedungs',
+const Building = sequelizeDB.define(
+  'buildings',
   {
     id: {
       allowNull: false,
@@ -58,4 +58,4 @@ const Gedung = sequelizeDB.define(
   }
 )
 
-module.exports = Gedung
+module.exports = Building

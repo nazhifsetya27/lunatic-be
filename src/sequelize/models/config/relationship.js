@@ -1,13 +1,13 @@
 module.exports = (models) => {
-  const { Floor, Gedung } = models
+  const { Floor, Building } = models
 
-  Floor.belongsTo(Gedung, {
+  Floor.belongsTo(Building, {
     foreignKey: 'gedung_id',
-    as: 'gedung',
+    as: 'floor',
   })
 
-  Gedung.hasMany(Floor, {
+  Building.hasMany(Floor, {
     foreignKey: 'gedung_id',
-    as: 'gedung',
+    as: 'floor',
   })
 }

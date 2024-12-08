@@ -17,7 +17,7 @@ exports.collections = async (req) => {
     limit: page_size,
     include: [
       {
-        association: 'gedung',
+        association: 'floor',
       },
     ],
     offset: (page - 1) * page_size,

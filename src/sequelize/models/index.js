@@ -1,12 +1,12 @@
 const User = require('./user')
-const Gedung = require('./gedung')
+const Building = require('./building')
 const Floor = require('./floor')
 
 const initRelationships = require('./config/relationship')
 
 const models = {
   User,
-  Gedung,
+  Building,
   Floor,
 }
 
