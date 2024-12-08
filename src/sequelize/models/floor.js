@@ -1,11 +1,10 @@
 /* eslint-disable no-param-reassign */
 const { DataTypes } = require('sequelize')
 const uuid = require('uuid')
-const bcrypt = require('bcryptjs')
 const { sequelizeDB, Sequelize } = require('./config')
 
-const User = sequelizeDB.define(
-  'users',
+const Floor = sequelizeDB.define(
+  'floors',
   {
     id: {
       allowNull: false,
@@ -16,17 +15,15 @@ const User = sequelizeDB.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    email: {
+    kode: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
     },
-    password: {
-      type: Sequelize.TEXT,
-    },
-    role: {
-      type: Sequelize.TEXT,
-      Comment: ['administrator, approver, user'],
+    gedung_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
     },
     createdAt: {
       type: Sequelize.DATE,
@@ -36,6 +33,7 @@ const User = sequelizeDB.define(
     },
     deletedAt: {
       type: Sequelize.DATE,
+      allowNull: true,
     },
   },
   {
@@ -50,7 +48,6 @@ const User = sequelizeDB.define(
         model.id = uuid.v4()
       },
       beforeCreate: (model, option) => {
-        model.password = bcrypt.hashSync(model.password)
         if (option?.req?.user) {
           model.created_by_id = option.req?.user.id
           model.updated_by_id = option.req?.user.id
@@ -61,16 +58,10 @@ const User = sequelizeDB.define(
           if (option.req?.user?.id) {
             model.updated_by_id = option.req?.user.id
           }
-          if (model.changed().includes('password')) {
-            model.password = bcrypt.hashSync(model.password)
-          }
         }
       },
-    },
-    defaultScope: {
-      attributes: { exclude: ['password'] },
     },
   }
 )
 
-module.exports = User
+module.exports = Floor
