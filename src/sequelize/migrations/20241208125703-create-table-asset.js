@@ -1,7 +1,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('floors', {
+    await queryInterface.createTable('assets', {
       id: {
         allowNull: false,
         type: Sequelize.STRING(36),
@@ -15,7 +15,15 @@ module.exports = {
         type: Sequelize.STRING(50),
         unique: true,
       },
-      gedung_id: {
+      category: {
+        type: Sequelize.STRING(50),
+        comment: ['Furniture', 'Elektronik', 'Umum'],
+      },
+      quantity: {
+        type: Sequelize.INTEGER(),
+        unique: true,
+      },
+      room_id: {
         type: Sequelize.STRING(36),
       },
       created_at: {
@@ -34,6 +42,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('floors')
+    await queryInterface.dropTable('assets')
   },
 }

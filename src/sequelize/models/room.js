@@ -3,8 +3,8 @@ const { DataTypes } = require('sequelize')
 const uuid = require('uuid')
 const { sequelizeDB, Sequelize } = require('./config')
 
-const Floor = sequelizeDB.define(
-  'floors',
+const Room = sequelizeDB.define(
+  'rooms',
   {
     id: {
       allowNull: false,
@@ -20,7 +20,7 @@ const Floor = sequelizeDB.define(
       allowNull: false,
       unique: true,
     },
-    gedung_id: {
+    lantai_id: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -63,4 +63,4 @@ const Floor = sequelizeDB.define(
   }
 )
 
-module.exports = Floor
+module.exports = Room

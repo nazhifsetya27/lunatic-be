@@ -35,6 +35,7 @@ app.get('/', (req, res) => {
 // NOTE : Add your routes here
 app.use('/auth', require('./src/modules/auth/auth.routes'))
 app.use('/storage', require('./src/modules/storage/storage.routes'))
+app.use('/asset', require('./src/modules/asset/asset.routes'))
 
 app.listen(PORT, () => {
   console.log(`server running on PORT: ${PORT}`)
