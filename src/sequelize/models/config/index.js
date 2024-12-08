@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 
 exports.Sequelize = Sequelize
-exports.sequelizeDB = new Sequelize(
+exports.sequelizeDB = new Sequelize.Sequelize(
   process.env.DB_DATABASE,
   process.env.DB_USER,
   process.env.DB_PASSWORD,

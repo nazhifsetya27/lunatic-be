@@ -8,10 +8,13 @@ const {
   login,
   getAllUser /* session, detail, update */,
 } = require('./auth.repository')
+const { auth } = require('../../controller/auth.controller')
 
 const router = Router()
 
 router.post('/', loginValidator, login)
+
+router.use(auth)
 router.get('/', getAllUser)
 // router.use(auth)
 // router.get('/session', session)
