@@ -1,4 +1,5 @@
 require('dotenv').config()
+const multer = require('multer')
 
 const cors = require('cors')
 const express = require('express')
@@ -8,15 +9,21 @@ const app = express()
 
 const PORT = process.env.PORT || 4000
 
+const upload = multer({
+  limits: { fileSize: 50 * 1024 * 1024 }, // Set file size limit if necessary
+  storage: multer.memoryStorage(), // Store files in memory for testing
+})
+
 app.use(
   cors({
-    origin: 'http://localhost:3010',
+    origin: true,
+    credentials: true,
   })
 )
-
-app.use(express.json())
+app.options('*', cors())
 
 // parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(bodyParser.json({ limit: '50mb', extended: true }))
 app.use(
@@ -27,6 +34,7 @@ app.use(
   })
 )
 app.use(bodyParser.text({ limit: '200mb' }))
+app.use(upload.any()) // This will handle all form-data file uploads
 
 app.get('/', (req, res) => {
   res.json('service lunatic BE is running')
