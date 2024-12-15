@@ -5,10 +5,10 @@ const {
   storeData,
   removeData,
   restoreData,
-  detailData,
   showData,
-  updateData
-} = require('./furniture.repository')
+  detailData,
+  updateData,
+} = require('./elektronik.repository')
 
 exports.index = async (req, res) => {
   try {

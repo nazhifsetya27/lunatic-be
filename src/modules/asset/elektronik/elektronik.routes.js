@@ -4,11 +4,11 @@ const {
   store,
   remove,
   restore,
-  detail,
   show,
+  detail,
   update,
-} = require('./furniture.controller')
-const { storeRequest, updateRequest } = require('./furniture.middleware')
+} = require('./elektronik.controller')
+const { storeRequest, updateRequest } = require('./elektronik.middleware')
 
 const router = express.Router()
 

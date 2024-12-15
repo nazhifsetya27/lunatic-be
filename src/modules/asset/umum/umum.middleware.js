@@ -15,7 +15,7 @@ exports.storeRequest = [
     .custom(async (value, { req }) => {
       const existingData = await Models.Asset.findOne({
         where: {
-          category: 'Furniture',
+          category: 'Umum',
           name: { [Op.like]: value },
         },
       })
