@@ -10,7 +10,7 @@ exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
   const numberPage = Number(page)
 
-  const where = { [Op.and]: { category: 'Furniture' } }
+  const where = { [Op.and]: { category: 'Elektronik' } }
 
   if (search)
     where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
@@ -55,7 +55,7 @@ exports.collections = async (req) => {
 
 exports.showData = async (req) => {
   const data = await Models.Asset.findOne({
-    where: { id: req.params.id, category: 'Furniture' },
+    where: { id: req.params.id, category: 'Elektronik' },
     paranoid: false,
   })
   if (!data) throw 'Furniture not found'
@@ -67,7 +67,7 @@ exports.detailData = async (req) => {
   const { id } = req.params
 
   const detailData = await Models.Asset.findOne({
-    where: { id, category: 'Furniture' },
+    where: { id, category: 'Elektronik' },
     paranoid: false,
     include: [
       {
@@ -115,36 +115,20 @@ exports.storeData = async (req) => {
   const data = await sequelize.transaction(async (transaction) => {
     const { name, kode, room_id } = req.body
 
-    const furniture = await Asset.create(
+    const elektronik = await Asset.create(
       {
         name,
         kode,
         room_id,
-        category: 'Furniture',
+        category: 'Elektronik',
       },
       { transaction }
     )
 
-    return furniture
+    return elektronik
   })
 
   return { data }
-}
-
-exports.updateData = async (req) => {
-  await sequelize.transaction(async (transaction) => {
-    const post = req.body
-
-    const furniture = await Models.Asset.findOne({
-      where: { id: req.params.id, category: 'Furniture' },
-      paranoid: false,
-      transaction,
-    })
-
-    if (!furniture) throw 'Data not found'
-
-    await furniture.update(post, { req, transaction })
-  })
 }
 
 exports.removeData = async (req) => {
@@ -167,5 +151,21 @@ exports.restoreData = async (req) => {
     })
     if (!data) throw 'Data not found'
     await data.restore({ req, transaction })
+  })
+}
+
+exports.updateData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const post = req.body
+
+    const elektronik = await Models.Asset.findOne({
+      where: { id: req.params.id, category: 'Elektronik' },
+      paranoid: false,
+      transaction,
+    })
+
+    if (!elektronik) throw 'Data not found'
+
+    await elektronik.update(post, { req, transaction })
   })
 }

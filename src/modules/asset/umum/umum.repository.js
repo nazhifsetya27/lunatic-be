@@ -10,7 +10,7 @@ exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
   const numberPage = Number(page)
 
-  const where = { [Op.and]: { category: 'Furniture' } }
+  const where = { [Op.and]: { category: 'Umum' } }
 
   if (search)
     where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
@@ -55,10 +55,10 @@ exports.collections = async (req) => {
 
 exports.showData = async (req) => {
   const data = await Models.Asset.findOne({
-    where: { id: req.params.id, category: 'Furniture' },
+    where: { id: req.params.id, category: 'Umum' },
     paranoid: false,
   })
-  if (!data) throw 'Furniture not found'
+  if (!data) throw 'Data not found'
 
   return { data }
 }
@@ -67,7 +67,7 @@ exports.detailData = async (req) => {
   const { id } = req.params
 
   const detailData = await Models.Asset.findOne({
-    where: { id, category: 'Furniture' },
+    where: { id, category: 'Umum' },
     paranoid: false,
     include: [
       {
@@ -120,7 +120,7 @@ exports.storeData = async (req) => {
         name,
         kode,
         room_id,
-        category: 'Furniture',
+        category: 'Umum',
       },
       { transaction }
     )
@@ -136,7 +136,7 @@ exports.updateData = async (req) => {
     const post = req.body
 
     const furniture = await Models.Asset.findOne({
-      where: { id: req.params.id, category: 'Furniture' },
+      where: { id: req.params.id, category: 'Umum' },
       paranoid: false,
       transaction,
     })

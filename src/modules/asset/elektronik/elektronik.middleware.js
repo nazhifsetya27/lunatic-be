@@ -15,7 +15,7 @@ exports.storeRequest = [
     .custom(async (value, { req }) => {
       const existingData = await Models.Asset.findOne({
         where: {
-          category: 'Furniture',
+          category: 'Elektronik',
           name: { [Op.like]: value },
         },
       })
@@ -37,7 +37,7 @@ exports.updateRequest = [
     .custom(async (value, { req }) => {
       const existingData = await Models.Asset.findOne({
         where: {
-          category: 'Furniture',
+          category: 'Elektronik',
           name: { [Op.like]: value },
         },
       })
