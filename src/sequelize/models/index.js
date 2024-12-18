@@ -3,6 +3,7 @@ const Building = require('./building')
 const Floor = require('./floor')
 const Room = require('./room')
 const Asset = require('./asset')
+const Condition = require('./condition')
 
 const initRelationships = require('./config/relationship')
 
@@ -12,6 +13,7 @@ const models = {
   Floor,
   Room,
   Asset,
+  Condition,
 }
 
 initRelationships(models)

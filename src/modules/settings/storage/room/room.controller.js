@@ -1,7 +1,7 @@
-const { Request } = require('../../../helper')
-const { collections } = require('./floor.repository')
+const { Request } = require('../../../../helper')
+const { collections } = require('./room.repository')
 
-exports.getAllFloor = async (req, res) => {
+exports.getAllRoom = async (req, res) => {
   try {
     const data = await collections(req)
     Request.success(res, { message: 'Success', data })
