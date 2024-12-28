@@ -103,7 +103,7 @@ exports.detailData = async (req) => {
     'Tanggal dibuat': moment(detailData?.created_at)
       .locale('id')
       .format('DD MMMM YYYY • HH:mm'),
-    'Terakhir diperbaharui': moment(detailData?.updated_at)
+    'Terakhir diperbarui': moment(detailData?.updated_at)
       .locale('id')
       .format('DD MMMM YYYY • HH:mm'),
   }
