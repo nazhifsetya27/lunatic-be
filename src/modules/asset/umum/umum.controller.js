@@ -7,8 +7,8 @@ const {
   restoreData,
   detailData,
   showData,
-  updateData
-} = require('./furniture.repository')
+  updateData,
+} = require('./umum.repository')
 
 exports.index = async (req, res) => {
   try {

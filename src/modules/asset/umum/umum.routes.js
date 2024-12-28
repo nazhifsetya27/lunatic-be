@@ -2,13 +2,13 @@ const express = require('express')
 const {
   index,
   store,
-  remove,
   restore,
+  remove,
   detail,
   show,
   update,
-} = require('./furniture.controller')
-const { storeRequest, updateRequest } = require('./furniture.middleware')
+} = require('./umum.controller')
+const { storeRequest, updateRequest } = require('./umum.middleware')
 
 const router = express.Router()
 

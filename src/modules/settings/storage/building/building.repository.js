@@ -1,7 +1,7 @@
 const { Op } = require('sequelize')
-const { Models } = require('../../../sequelize/models')
+const { Models } = require('../../../../sequelize/models')
 
-const { Room } = Models
+const { Building } = Models
 
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
@@ -15,12 +15,6 @@ exports.collections = async (req) => {
   const query = {
     where,
     limit: page_size,
-    include: [
-      {
-        association: 'floor',
-        include: [{ paranoid: false, association: 'building' }],
-      },
-    ],
     offset: (page - 1) * page_size,
     order: [['created_at', 'DESC']],
   }
@@ -32,7 +26,7 @@ exports.collections = async (req) => {
     where.deleted_at = { [Op.is]: null }
   }
 
-  const data = await Room.findAndCountAll(query)
+  const data = await Building.findAndCountAll(query)
   const total = data.count
   const totalPage = Math.ceil(total / page_size)
 
