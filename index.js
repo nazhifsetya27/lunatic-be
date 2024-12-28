@@ -47,6 +47,7 @@ app.use(
   require('./src/modules/storage-management/storage-management.routes')
 )
 app.use('/asset', require('./src/modules/asset/asset.routes'))
+app.use('/user', require('./src/modules/user/user.routes'))
 app.use('/settings', require('./src/modules/settings/settings.routes'))
 app.use('/option', require('./src/modules/option/option.routes'))
 
