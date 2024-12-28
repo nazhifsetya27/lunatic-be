@@ -1,6 +1,8 @@
 const { Op } = require('sequelize')
 const { Models } = require('../../../../sequelize/models')
 
+const { sequelize } = Models.Room
+
 const { Room } = Models
 
 exports.collections = async (req) => {
@@ -48,4 +50,11 @@ exports.collections = async (req) => {
     },
     // filter: [],
   }
+}
+
+exports.storeData = async (req) => {
+  const data = await sequelize.transaction(async (transaction) => {
+    const { name, kode } = req.body
+  })
+  return { data }
 }

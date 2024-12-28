@@ -3,8 +3,7 @@ const { collections } = require('./floor.repository')
 
 exports.getAllFloor = async (req, res) => {
   try {
-    const data = await collections(req)
-    Request.success(res, { message: 'Success', data })
+    Request.success(res, await collections(req))
   } catch (error) {
     Request.error(res, error)
   }

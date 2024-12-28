@@ -42,9 +42,13 @@ app.get('/', (req, res) => {
 
 // NOTE : Add your routes here
 app.use('/auth', require('./src/modules/auth/auth.routes'))
-// app.use('/storage', require('./src/modules/storage/storage.routes'))
+app.use(
+  '/storage-management',
+  require('./src/modules/storage-management/storage-management.routes')
+)
 app.use('/asset', require('./src/modules/asset/asset.routes'))
 app.use('/settings', require('./src/modules/settings/settings.routes'))
+app.use('/option', require('./src/modules/option/option.routes'))
 
 app.listen(PORT, () => {
   console.log(`server running on PORT: ${PORT}`)

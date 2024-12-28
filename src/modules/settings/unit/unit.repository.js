@@ -2,15 +2,14 @@ const { Op } = require('sequelize')
 const moment = require('moment')
 const { Models } = require('../../../sequelize/models')
 
-const { sequelize } = Models.Asset
-
-const { Asset } = Models
+const { Unit } = Models
+const { sequelize } = Unit
 
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
   const numberPage = Number(page)
 
-  const where = { [Op.and]: { category: 'Elektronik' } }
+  const where = { [Op.and]: [] }
 
   if (search)
     where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
@@ -18,14 +17,8 @@ exports.collections = async (req) => {
   const query = {
     where,
     limit: page_size,
-    include: [
-      {
-        association: 'room',
-        include: [{ paranoid: false, association: 'floor' }],
-      },
-    ],
     offset: (page - 1) * page_size,
-    order: [['updated_at', 'DESC']],
+    order: [['created_at', 'DESC']],
   }
 
   if (archive === '1') {
@@ -35,7 +28,7 @@ exports.collections = async (req) => {
     where.deleted_at = { [Op.is]: null }
   }
 
-  const data = await Asset.findAndCountAll(query)
+  const data = await Unit.findAndCountAll(query)
   const total = data.count
   const totalPage = Math.ceil(total / page_size)
 
@@ -54,11 +47,11 @@ exports.collections = async (req) => {
 }
 
 exports.showData = async (req) => {
-  const data = await Models.Asset.findOne({
-    where: { id: req.params.id, category: 'Elektronik' },
+  const data = await Unit.findOne({
+    where: { id: req.params.id },
     paranoid: false,
   })
-  if (!data) throw 'Furniture not found'
+  if (!data) throw 'Data not found'
 
   return { data }
 }
@@ -66,29 +59,9 @@ exports.showData = async (req) => {
 exports.detailData = async (req) => {
   const { id } = req.params
 
-  const detailData = await Models.Asset.findOne({
-    where: { id, category: 'Elektronik' },
+  const detailData = await Unit.findOne({
+    where: { id },
     paranoid: false,
-    include: [
-      {
-        association: 'room',
-        attributes: ['id', 'name', 'kode'],
-        include: [
-          {
-            paranoid: false,
-            association: 'floor',
-            attributes: ['id', 'name', 'kode'],
-            include: [
-              {
-                paranoid: false,
-                association: 'building',
-                attributes: ['id', 'name', 'kode'],
-              },
-            ],
-          },
-        ],
-      },
-    ],
   })
 
   if (!detailData) throw 'Detail data not found'
@@ -97,9 +70,6 @@ exports.detailData = async (req) => {
     nama: detailData.name,
     kode: detailData.kode,
     kategory: detailData.category,
-    ruangan: detailData?.room ? detailData?.room.name : '-',
-    lantai: detailData?.room ? detailData.room.floor.name : '-',
-    gedung: detailData?.room ? detailData.room.floor.building.name : '-',
     'Tanggal dibuat': moment(detailData?.created_at)
       .locale('id')
       .format('DD MMMM YYYY • HH:mm'),
@@ -113,27 +83,41 @@ exports.detailData = async (req) => {
 
 exports.storeData = async (req) => {
   const data = await sequelize.transaction(async (transaction) => {
-    const { name, kode, room_id } = req.body
+    const { name, kode } = req.body
 
-    const elektronik = await Asset.create(
+    const unit = await Unit.create(
       {
         name,
         kode,
-        room_id,
-        category: 'Elektronik',
       },
       { transaction }
     )
 
-    return elektronik
+    return unit
   })
 
   return { data }
 }
 
+exports.updateData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const post = req.body
+
+    const elektronik = await Unit.findOne({
+      where: { id: req.params.id },
+      paranoid: false,
+      transaction,
+    })
+
+    if (!elektronik) throw 'Data not found'
+
+    await elektronik.update(post, { req, transaction })
+  })
+}
+
 exports.removeData = async (req) => {
   await sequelize.transaction(async (transaction) => {
-    const data = await Models.Asset.findOne({
+    const data = await Unit.findOne({
       where: { id: req.params.id },
       transaction,
     })
@@ -144,28 +128,12 @@ exports.removeData = async (req) => {
 
 exports.restoreData = async (req) => {
   await sequelize.transaction(async (transaction) => {
-    const data = await Models.Asset.findOne({
+    const data = await Unit.findOne({
       where: { id: req.params.id },
       paranoid: false,
       transaction,
     })
     if (!data) throw 'Data not found'
     await data.restore({ req, transaction })
-  })
-}
-
-exports.updateData = async (req) => {
-  await sequelize.transaction(async (transaction) => {
-    const post = req.body
-
-    const elektronik = await Models.Asset.findOne({
-      where: { id: req.params.id, category: 'Elektronik' },
-      paranoid: false,
-      transaction,
-    })
-
-    if (!elektronik) throw 'Data not found'
-
-    await elektronik.update(post, { req, transaction })
   })
 }
