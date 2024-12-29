@@ -18,7 +18,7 @@ const router = express.Router()
 
 router.use(auth)
 router.get('/:unit_id', index)
-// router.get('/:id', show)
+router.get('/:unit_id/:id', show)
 // router.get('/:id/detail', detail)
 
 router.post('/', storeRequest, store)

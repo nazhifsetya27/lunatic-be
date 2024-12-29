@@ -1,0 +1,11 @@
+logic add floor:
+
+1. find unit_id dan building_id dari data storageManagement
+2. setelah ketemu, jika sudah ada datanya maka update value nya
+3. jika belum ada tambahkan ke record data dengan floor_ids baru
+
+fe:
+1. index -> floor slider: currentSlider.id = building_id
+1. floor slider -> room slider:
+         currentSlider.data.previous_building_id = building_id
+         currentSlider.id = floor_id

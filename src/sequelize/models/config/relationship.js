@@ -23,14 +23,14 @@ module.exports = (models) => {
     as: 'floor',
   })
 
-  Asset.belongsTo(Room, {
-    foreignKey: 'room_id',
-    as: 'room',
+  Asset.belongsTo(StorageManagement, {
+    foreignKey: 'storage_management_id',
+    as: 'storage',
   })
 
-  Room.hasMany(Asset, {
-    foreignKey: 'room_id',
-    as: 'room',
+  StorageManagement.hasMany(Asset, {
+    foreignKey: 'storage_management_id',
+    as: 'storage',
   })
 
   // STORAGE MANAGEMENT

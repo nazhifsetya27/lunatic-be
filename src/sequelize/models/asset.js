@@ -28,7 +28,7 @@ const Asset = sequelizeDB.define(
       type: Sequelize.INTEGER(),
       unique: true,
     },
-    room_id: {
+    storage_management_id: {
       type: Sequelize.STRING(36),
     },
     createdAt: {

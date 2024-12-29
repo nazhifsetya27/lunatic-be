@@ -4,7 +4,7 @@ const { Models } = require('../../../sequelize/models')
 
 const { sequelize } = Models.Asset
 
-const { Asset } = Models
+const { Asset, StorageManagement } = Models
 
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
@@ -20,8 +20,29 @@ exports.collections = async (req) => {
     limit: page_size,
     include: [
       {
-        association: 'room',
-        include: [{ paranoid: false, association: 'floor' }],
+        association: 'storage',
+        include: [
+          {
+            paranoid: false,
+            association: 'unit',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'building',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'storage_floor',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'storage_room',
+            attributes: ['id', 'name'],
+          },
+        ],
       },
     ],
     offset: (page - 1) * page_size,
@@ -71,20 +92,27 @@ exports.detailData = async (req) => {
     paranoid: false,
     include: [
       {
-        association: 'room',
-        attributes: ['id', 'name', 'kode'],
+        association: 'storage',
         include: [
           {
             paranoid: false,
-            association: 'floor',
-            attributes: ['id', 'name', 'kode'],
-            include: [
-              {
-                paranoid: false,
-                association: 'building',
-                attributes: ['id', 'name', 'kode'],
-              },
-            ],
+            association: 'unit',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'building',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'storage_floor',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'storage_room',
+            attributes: ['id', 'name'],
           },
         ],
       },
@@ -97,9 +125,10 @@ exports.detailData = async (req) => {
     nama: detailData.name,
     kode: detailData.kode,
     kategory: detailData.category,
-    ruangan: detailData?.room ? detailData?.room.name : '-',
-    lantai: detailData?.room ? detailData.room.floor.name : '-',
-    gedung: detailData?.room ? detailData.room.floor.building.name : '-',
+    unit: detailData?.storage?.unit?.name ?? '-',
+    gedung: detailData?.storage?.building?.name ?? '-',
+    lantai: detailData?.storage?.storage_floor?.name ?? '-',
+    ruangan: detailData?.storage?.storage_room?.name ?? '-',
     'Tanggal dibuat': moment(detailData?.created_at)
       .locale('id')
       .format('DD MMMM YYYY • HH:mm'),
@@ -113,13 +142,28 @@ exports.detailData = async (req) => {
 
 exports.storeData = async (req) => {
   const data = await sequelize.transaction(async (transaction) => {
-    const { name, kode, room_id } = req.body
+    const { name, kode, unit_id, building_id, floor_id, room_id } = req.body
+
+    if (!unit_id) throw 'unit_id is required!'
+    if (!building_id) throw 'unit_id is required!'
+    if (!floor_id) throw 'unit_id is required!'
+    if (!room_id) throw 'unit_id is required!'
+
+    const storageManagement = await StorageManagement.findOne({
+      where: {
+        unit_id,
+        building_id,
+        floor_id,
+        room_id,
+      },
+    })
+    if (!storageManagement) throw 'storageManagement not found'
 
     const furniture = await Asset.create(
       {
         name,
         kode,
-        room_id,
+        storage_management_id: storageManagement.id,
         category: 'Furniture',
       },
       { transaction }

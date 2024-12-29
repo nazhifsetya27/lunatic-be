@@ -30,16 +30,18 @@ exports.unitList = async (req, res) => {
 exports.buildingList = async (req, res) => {
   try {
     const { search, unit_id } = req.query
-    const where = {}
-    let allowedBuildingIds = []
+    const where = { [Op.and]: [] }
+    let existingBuildingIds = []
 
     if (unit_id) {
       const storageManagements = await StorageManagement.findAll({
         where: { unit_id },
       })
-      allowedBuildingIds = [
+      existingBuildingIds = [
         ...new Set(storageManagements.map((val) => val.building_id)),
       ]
+
+      where[Op.and].push({ id: { [Op.notIn]: existingBuildingIds } })
     }
 
     if (search)
@@ -62,8 +64,8 @@ exports.buildingList = async (req, res) => {
 
 exports.floorList = async (req, res) => {
   try {
-    const { search } = req.query
-    const where = {}
+    const { search, existing_ids } = req.query
+    const where = { [Op.and]: [] }
 
     if (search)
       where[Op.or] = {
@@ -71,6 +73,9 @@ exports.floorList = async (req, res) => {
           [Op.iLike]: `%${search}%`,
         },
       }
+
+    if (existing_ids) where[Op.and].push({ id: { [Op.notIn]: existing_ids } })
+
     Request.success(res, {
       data: await Floor.findAll({
         where,
@@ -85,8 +90,8 @@ exports.floorList = async (req, res) => {
 
 exports.roomList = async (req, res) => {
   try {
-    const { search } = req.query
-    const where = {}
+    const { search, existing_ids } = req.query
+    const where = { [Op.and]: [] }
 
     if (search)
       where[Op.or] = {
@@ -94,6 +99,9 @@ exports.roomList = async (req, res) => {
           [Op.iLike]: `%${search}%`,
         },
       }
+
+    if (existing_ids) where[Op.and].push({ id: { [Op.notIn]: existing_ids } })
+
     Request.success(res, {
       data: await Room.findAll({
         where,
