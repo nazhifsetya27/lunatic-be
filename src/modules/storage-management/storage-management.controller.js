@@ -17,13 +17,13 @@ exports.index = async (req, res) => {
   }
 }
 
-// exports.show = async (req, res) => {
-//   try {
-//     Request.success(res, await showData(req))
-//   } catch (error) {
-//     Request.error(res, error)
-//   }
-// }
+exports.show = async (req, res) => {
+  try {
+    Request.success(res, await showData(req))
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
 
 // exports.detail = async (req, res) => {
 //   try {

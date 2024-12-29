@@ -5,7 +5,7 @@ const assets = [
     kode: 'F1',
     category: 'Furniture',
     quantity: 1,
-    room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
     created_at: new Date(),
     updated_at: new Date(),
   },
