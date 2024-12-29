@@ -26,7 +26,7 @@ const Asset = sequelizeDB.define(
     },
     quantity: {
       type: Sequelize.INTEGER(),
-      unique: true,
+      // unique: true,
     },
     storage_management_id: {
       type: Sequelize.STRING(36),
