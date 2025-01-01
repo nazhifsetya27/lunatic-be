@@ -5,6 +5,8 @@ const {
   removeUndefinedRequest,
 } = require('../../../helper/request.validator')
 const { Models } = require('../../../sequelize/models')
+const { File } = require('../../../helper')
+const { checkFile, readFileExcel } = File
 
 exports.storeRequest = [
   check('name')
@@ -48,4 +50,14 @@ exports.updateRequest = [
   check('room_id').optional().bail().isUUID(4),
   validateRequest,
   removeUndefinedRequest,
+]
+
+exports.convertExcel = [
+  checkFile({
+    name: "assets",
+    allow: ["vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    multi: false,
+    required: true,
+  }),
+  readFileExcel('merchants'),
 ]
