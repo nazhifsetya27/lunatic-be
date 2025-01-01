@@ -75,6 +75,4 @@ module.exports = (models) => {
     foreignKey: 'room_id',
     as: 'room_storage',
   })
-
-  Asset.belongsTo()
 }
