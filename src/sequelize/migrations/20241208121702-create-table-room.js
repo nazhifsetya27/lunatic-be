@@ -15,9 +15,9 @@ module.exports = {
         type: Sequelize.STRING(50),
         unique: true,
       },
-      lantai_id: {
-        type: Sequelize.STRING(36),
-      },
+      // lantai_id: {
+      //   type: Sequelize.STRING(36),
+      // },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
