@@ -1,7 +1,8 @@
 // const Unit = require("../unit")
 
 module.exports = (models) => {
-  const { Floor, Building, Room, Asset, StorageManagement, Unit } = models
+  const { Floor, Building, Room, Asset, StorageManagement, Unit, Condition } =
+    models
 
   Floor.belongsTo(Building, {
     foreignKey: 'gedung_id',
@@ -31,6 +32,11 @@ module.exports = (models) => {
   StorageManagement.hasMany(Asset, {
     foreignKey: 'storage_management_id',
     as: 'storage',
+  })
+
+  Asset.belongsTo(Condition, {
+    foreignKey: 'condition_id',
+    as: 'condition',
   })
 
   // STORAGE MANAGEMENT
@@ -69,4 +75,6 @@ module.exports = (models) => {
     foreignKey: 'room_id',
     as: 'room_storage',
   })
+
+  Asset.belongsTo()
 }

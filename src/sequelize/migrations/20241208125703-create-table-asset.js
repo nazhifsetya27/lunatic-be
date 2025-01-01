@@ -19,6 +19,9 @@ module.exports = {
         type: Sequelize.STRING(50),
         comment: ['Furniture', 'Elektronik', 'Umum'],
       },
+      condition_id: {
+        type: Sequelize.STRING(36),
+      },
       quantity: {
         type: Sequelize.INTEGER(),
         // unique: true,
