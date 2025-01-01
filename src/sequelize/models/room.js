@@ -20,10 +20,10 @@ const Room = sequelizeDB.define(
       allowNull: false,
       unique: true,
     },
-    lantai_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+    // lantai_id: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true,
+    // },
     createdAt: {
       type: Sequelize.DATE,
     },
