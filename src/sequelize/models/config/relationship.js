@@ -14,15 +14,15 @@ module.exports = (models) => {
     as: 'building',
   })
 
-  Room.belongsTo(Floor, {
-    foreignKey: 'lantai_id',
-    as: 'floor',
-  })
+  // Room.belongsTo(Floor, {
+  //   foreignKey: 'lantai_id',
+  //   as: 'floor',
+  // })
 
-  Floor.hasMany(Room, {
-    foreignKey: 'lantai_id',
-    as: 'floor',
-  })
+  // Floor.hasMany(Room, {
+  //   foreignKey: 'lantai_id',
+  //   as: 'floor',
+  // })
 
   Asset.belongsTo(StorageManagement, {
     foreignKey: 'storage_management_id',
@@ -76,5 +76,5 @@ module.exports = (models) => {
     as: 'room_storage',
   })
 
-  Asset.belongsTo()
+  // Asset.belongsTo()
 }

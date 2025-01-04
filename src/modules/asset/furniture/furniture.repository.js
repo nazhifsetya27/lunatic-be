@@ -77,6 +77,33 @@ exports.collections = async (req) => {
 exports.showData = async (req) => {
   const data = await Models.Asset.findOne({
     where: { id: req.params.id, category: 'Furniture' },
+    include: [
+      {
+        association: 'storage',
+        include: [
+          {
+            paranoid: false,
+            association: 'unit',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'building',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'storage_floor',
+            attributes: ['id', 'name'],
+          },
+          {
+            paranoid: false,
+            association: 'storage_room',
+            attributes: ['id', 'name'],
+          },
+        ],
+      },
+    ],
     paranoid: false,
   })
   if (!data) throw 'Furniture not found'
@@ -179,6 +206,16 @@ exports.updateData = async (req) => {
   await sequelize.transaction(async (transaction) => {
     const post = req.body
 
+    const storageManagement = await StorageManagement.findOne({
+      where: {
+        unit_id: post.unit_id,
+        building_id: post.building_id,
+        floor_id: post.floor_id,
+        room_id: post.room_id,
+      },
+    })
+    if (!storageManagement) throw 'storageManagement not found'
+
     const furniture = await Models.Asset.findOne({
       where: { id: req.params.id, category: 'Furniture' },
       paranoid: false,
@@ -187,7 +224,13 @@ exports.updateData = async (req) => {
 
     if (!furniture) throw 'Data not found'
 
-    await furniture.update(post, { req, transaction })
+    const submitData = {
+      name: post.name,
+      kode: post.kode,
+      storage_management_id: storageManagement.id,
+    }
+
+    await furniture.update(submitData, { req, transaction })
   })
 }
 

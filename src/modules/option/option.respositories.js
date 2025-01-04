@@ -98,6 +98,9 @@ exports.roomList = async (req, res) => {
         name: {
           [Op.iLike]: `%${search}%`,
         },
+        kode: {
+          [Op.iLike]: `%${search}%`,
+        },
       }
 
     if (existing_ids) where[Op.and].push({ id: { [Op.notIn]: existing_ids } })
@@ -105,7 +108,7 @@ exports.roomList = async (req, res) => {
     Request.success(res, {
       data: await Room.findAll({
         where,
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name', 'kode'],
         order: [['name', 'asc']],
       }),
     })

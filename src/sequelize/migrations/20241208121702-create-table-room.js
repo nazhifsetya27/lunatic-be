@@ -13,7 +13,7 @@ module.exports = {
       },
       kode: {
         type: Sequelize.STRING(50),
-        unique: true,
+        unique: false,
       },
       // lantai_id: {
       //   type: Sequelize.STRING(36),
