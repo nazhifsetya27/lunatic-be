@@ -17,12 +17,12 @@ exports.collections = async (req) => {
   const query = {
     where,
     limit: page_size,
-    include: [
-      {
-        association: 'floor',
-        include: [{ paranoid: false, association: 'building' }],
-      },
-    ],
+    // include: [
+    //   {
+    //     association: 'floor',
+    //     include: [{ paranoid: false, association: 'building' }],
+    //   },
+    // ],
     offset: (page - 1) * page_size,
     order: [['created_at', 'DESC']],
   }

@@ -32,22 +32,11 @@ exports.storeRequest = [
 ]
 
 exports.updateRequest = [
-  check('name')
-    .optional()
-    .bail()
-    .isString()
-    .bail()
-    .custom(async (value, { req }) => {
-      const existingData = await Models.Asset.findOne({
-        where: {
-          category: 'Furniture',
-          name: { [Op.like]: value },
-        },
-      })
-
-      if (existingData) throw 'nama sudah ada!'
-    }),
+  check('name').notEmpty().bail().isString(),
   check('kode').optional().bail().isString(),
+  check('unit_id').optional().bail().isUUID(4),
+  check('building_id').optional().bail().isUUID(4),
+  check('floor_id').optional().bail().isUUID(4),
   check('room_id').optional().bail().isUUID(4),
   validateRequest,
   removeUndefinedRequest,
