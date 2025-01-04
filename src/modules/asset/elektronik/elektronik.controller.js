@@ -10,6 +10,7 @@ const {
   updateData,
   example,
 } = require('./elektronik.repository')
+const uuid = require('uuid')
 
 exports.index = async (req, res) => {
   try {
@@ -247,11 +248,10 @@ exports.importData = async (req, res) => {
   }
 }
 
-
 exports.example = async (req, res) => {
   try {
-    await example(req, res);
+    await example(req, res)
   } catch (error) {
-    Request.error(res, error);
+    Request.error(res, error)
   }
-};
+}
