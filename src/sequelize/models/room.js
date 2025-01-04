@@ -18,7 +18,7 @@ const Room = sequelizeDB.define(
     kode: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: false,
+      // unique: true,
     },
     // lantai_id: {
     //   type: DataTypes.STRING,

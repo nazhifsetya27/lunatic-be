@@ -519,6 +519,239 @@ const rooms = [
     created_at: new Date(),
     updated_at: new Date(),
   },
+
+  // -------- lantai 0 gedung tata usaha --------
+
+  {
+    id: '4af28c6c-e901-4031-aeab-367b49b3cb2f',
+    name: 'Lobby Gedung Tata Usaha',
+    kode: '001',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'efcd54a7-c08e-44ad-955f-4539b2c5bd72',
+    name: 'Ruang anager K3L',
+    kode: '002',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '001ad448-b230-40a2-9c0f-0a3b05841925',
+    name: 'Ruang APKU',
+    kode: '003',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'f99c5aea-29d5-44c2-b630-39380f1da3e2',
+    name: 'Ruang K3L',
+    kode: '004',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'e1b97a6e-28da-439a-a3d4-aef247fd7fb6',
+    name: 'Ruang Manager APKU',
+    kode: '005',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '16c5e8fd-61ed-4052-bacf-6398823addbc',
+    name: 'Ruang Rapat APKU',
+    kode: '006',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'bd45a5c2-4f28-486e-aa2f-1785f2a804ae',
+    name: 'Ruang Sekretariat',
+    kode: '007',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '35600a29-ee9d-4b73-a0c4-9a2d62f9f73e',
+    name: 'Ruang Sekretaris SRM TEK',
+    kode: '008',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'e24b0131-5d3f-4d44-bca9-36d899a4bcb7',
+    name: 'Ruang SRM TEK',
+    kode: '009',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '9022631a-3491-4614-8e7a-e9e7b5d90da6',
+    name: 'Toilet Pria',
+    kode: '010',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '426a28b1-a49a-4acb-bd21-76082508016d',
+    name: 'Toilet Wanita',
+    kode: '011',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+
+  // -------- lantai 1 gedung tata usaha --------
+
+  {
+    id: 'd15903d5-b497-45aa-93b4-56196669a887',
+    name: 'Ruang SM KKU',
+    kode: '001',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '97aeb2fb-e93e-469c-a38b-51a33ff69b2f',
+    name: 'Ruang Sekretaris SM KKU',
+    kode: '002',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '0fa351a7-626b-4d03-af84-80002ea7026f',
+    name: 'Ruang Manager Akuntansi',
+    kode: '003',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'b93a5ec0-41e5-46f1-90f5-2c69e2529169',
+    name: 'Ruang Manager Keuangan & Anggaran',
+    kode: '004',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '047909fb-1a28-4a04-98c4-baf46324de89',
+    name: 'Ruang Akuntansi, Keuangan, & Anggaran',
+    kode: '005',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+
+  // -------- lantai 2 gedung tata usaha --------
+
+  {
+    id: '50b59a60-9e61-4fe0-a2a1-7755d7b6f1f4',
+    name: 'Musholla',
+    kode: '001',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  // {
+  //   id: '50b59a60-9e61-4fe0-a2a1-7755d7b6f1f4',
+  //   name: 'Pantry',
+  //   kode: '002',
+  //   // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+  //   created_at: new Date(),
+  //   updated_at: new Date(),
+  // },
+  {
+    id: '622b0396-0259-4a94-bc18-3c6009697dc3',
+    name: 'Ruang Arsip',
+    kode: '003',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '732b8f12-3b73-4e57-9944-4b57f9d5e86d',
+    name: 'Ruang Ex-Anev',
+    kode: '004',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '363c48b9-f6e0-450b-99c1-aaaab712e596',
+    name: 'Ruang Manager Anev',
+    kode: '005',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '326800fa-f1fd-4c89-b091-4471d053c413',
+    name: 'Ruang Manager Rensis',
+    kode: '006',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'f60ee585-8a50-4e43-812e-74c4288a5ad0',
+    name: 'Ruang Manager Renus',
+    kode: '007',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '7252944e-db72-4d69-a9c1-804aaa0ee391',
+    name: 'Ruang Perencanaan',
+    kode: '008',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'a7aeda7b-1e29-4db1-973d-b22a3a54a408',
+    name: 'Ruang Sekretaris SRM REN',
+    kode: '009',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'a1cda485-fa31-4e5b-be51-97b892497d6a',
+    name: 'Ruang SRM REN',
+    kode: '010',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: '1fe9462e-f26b-48d6-9276-efdc122b6206',
+    name: 'Toilet Pria',
+    kode: '011',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+  {
+    id: 'b007869f-a137-415f-b29a-a549511d611c',
+    name: 'Toilet Wanita',
+    kode: '012',
+    // lantai_id: '44f35762-6723-40fb-b453-8163c8642e6a', // lantai 0
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
 ]
 
 /** @type {import('sequelize-cli').Migration} */

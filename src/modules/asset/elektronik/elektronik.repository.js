@@ -1,7 +1,7 @@
 const { Op } = require('sequelize')
 const moment = require('moment')
 const { Models } = require('../../../sequelize/models')
-
+const { Workbook } = require('excel4node')
 const { sequelize } = Models.Asset
 
 const { Asset, StorageManagement } = Models
@@ -256,4 +256,99 @@ exports.updateData = async (req) => {
 
     await elektronik.update(submitData, { req, transaction })
   })
+}
+
+exports.example = async (req, res) => {
+  var workbook = new Workbook()
+  var worksheet = workbook.addWorksheet('Asset')
+
+  const asset_header = [
+    'Name', //A
+    'Kode', //B
+    'Category', //C
+    'Quantity', //D
+    'Condition', //E
+    'Unit', //F
+    'Gedung', //G
+    'Lantai', //H
+    'Ruangan', //I
+  ]
+
+  asset_header.map((key, index) => {
+    worksheet.cell(1, index + 1).string(key)
+  })
+}
+
+exports.collectionExport = async (req, res) => {
+  const data = await Models.Asset.findAll({
+    include: [
+      {
+        paranoid: false,
+        association: 'condition',
+        attributes: ['id', 'name'],
+      },
+      {
+        paranoid: false,
+        association: 'storage',
+        include: [
+          {
+            association: 'unit',
+            attributes: ['id', 'name'],
+          },
+          {
+            association: 'building',
+            attributes: ['id', 'name'],
+          },
+          {
+            association: 'storage_floor',
+            attributes: ['id', 'name'],
+          },
+          {
+            association: 'storage_room',
+            attributes: ['id', 'name'],
+          },
+        ],
+      },
+    ],
+    order: [['created_at', 'desc']],
+  })
+
+  var workbook = new Workbook()
+  var worksheet = workbook.addWorksheet('Asset')
+  var worksheet2 = workbook.addWorksheet('Filter')
+
+  const asset_header = [
+    'Name', //1
+    'Kode', //2
+    'Category', //3
+    'Quantity', //4
+    'Condition', //5
+    'Unit', //6
+    'Gedung', //7
+    'Lantai', //8
+    'Ruangan', //9
+  ]
+
+  asset_header.map((key, index) => {
+    worksheet.cell(1, index + 1).string(key)
+  })
+  worksheet.row(1).freeze()
+  data.map((data, index) => {
+    worksheet.cell(index + 2, 1).string(data.name ?? '')
+    worksheet.cell(index + 2, 2).string(data.kode ?? '')
+    worksheet.cell(index + 2, 3).string(data.category ?? '')
+    worksheet.cell(index + 2, 4).string(data.quantity ?? '')
+    worksheet.cell(index + 2, 5).string(data.condition?.name ?? '')
+    worksheet.cell(index + 2, 6).string(data.storage?.unit?.name ?? '')
+    worksheet.cell(index + 2, 7).string(data.storage?.building?.name ?? '')
+    worksheet.cell(index + 2, 8).string(data.storage?.storage_floor?.name ?? '')
+    worksheet.cell(index + 2, 9).string(data.storage?.storage_room?.name ?? '')
+  })
+
+  worksheet2.cell(1, 1).string('Search')
+  worksheet2.cell(1, 2).string(req.query.search)
+  worksheet2.cell(3, 1).string('Category')
+  worksheet2.cell(3, 2).string(req.query.category)
+
+  workbook.write('export-asset.xlsx', res)
 }
