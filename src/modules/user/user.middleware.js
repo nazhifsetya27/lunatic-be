@@ -24,6 +24,10 @@ const checkValidate = async (value, { req }) => {
     if (dataExist.isSoftDeleted()) throw 'Data already in archived'
     throw 'Data already exist'
   }
+
+  if (req.user.role !== 'Administrator' && body.password) {
+    throw 'Only Administrator can change password'
+  }
 }
 
 exports.findOneData = async (req, res, next) => {
@@ -55,7 +59,18 @@ exports.storeRequest = [
 exports.updateRequest = [
   check('email').notEmpty().bail().isEmail().bail().custom(checkValidate),
   check('name').notEmpty().bail().isString(),
-  check('password').notEmpty().bail().isString(),
+  // check('password').optional().bail().isString(),
+  check('password')
+    .optional() 
+    .bail()
+    .isString()
+    .bail()
+    .custom((value, { req }) => {
+      if (req.user.role !== 'Administrator') {
+        throw new Error('Only Administrator can change password')
+      }
+      return true
+    }),
   check('role').notEmpty().bail().isString(),
   validateRequest,
   removeUndefinedRequest,

@@ -58,3 +58,25 @@ exports.getAllUser = async (req, res) => {
     Request.error(res, error)
   }
 }
+
+exports.update = async (req, res) => {
+  try {
+    const user = req.user
+    const post = req.body
+    // if (req.file?.photo) {
+    //   post.photo = saveImage(req.file.photo, user.id, 'users')
+    // }
+    // if (post.delete_photo) {
+    //   post.photo = null
+    // }
+
+    if (post.new_password) {
+      post.password = post.new_password
+    }
+
+    await user.update(post, { individualHooks: true, req })
+    Request.success(res, { message: 'Success update data' })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
