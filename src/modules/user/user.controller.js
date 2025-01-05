@@ -1,5 +1,6 @@
 const { Request } = require('../../helper')
 const { Models } = require('../../sequelize/models')
+const { detailGeneral } = require('./user.repository')
 
 const { User } = Models
 
@@ -30,6 +31,15 @@ exports.createUser = async (req, res) => {
 exports.show = async (req, res) => {
   try {
     Request.success(res, { data: req.findData })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.detail = async (req, res) => {
+  try {
+    const data = await detailGeneral(req, res)
+    Request.success(res, { ...data })
   } catch (error) {
     Request.error(res, error)
   }

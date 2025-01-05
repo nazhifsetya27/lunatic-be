@@ -1,5 +1,5 @@
 const { Op } = require('sequelize')
-const { Models } = require('../../../sequelize/models')
+const { Models } = require('../../sequelize/models')
 
 const { User } = Models
 
@@ -34,5 +34,33 @@ exports.collections = async (req, res) => {
       total,
     },
     // filter: [],
+  }
+}
+
+exports.detailGeneral = async (req) => {
+  const user = req.findData
+  // check if customer bond with user is all_customer
+
+  const userData = {
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    id: user.id,
+  }
+
+  const generalData = {
+    personal: {
+      Name: user.name,
+      Email: user.email,
+      Role: user.role,
+    },
+    general: {
+      'Tanggal dibuat': user.created_at,
+      'Terakhir diperbarui': user.updated_at,
+    },
+  }
+  return {
+    data: userData,
+    general: generalData,
   }
 }
