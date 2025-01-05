@@ -28,6 +28,10 @@ const User = sequelizeDB.define(
       type: Sequelize.TEXT,
       Comment: ['administrator, approver, user'],
     },
+    photo_url: {
+      type: Sequelize.TEXT,
+      allowNull: true,
+    },
     createdAt: {
       type: Sequelize.DATE,
     },

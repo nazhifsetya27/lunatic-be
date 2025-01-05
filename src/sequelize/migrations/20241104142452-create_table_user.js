@@ -24,6 +24,10 @@ module.exports = {
         type: Sequelize.STRING,
         comment: ['Administrator', 'Approver', 'User'],
       },
+      photo_url: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

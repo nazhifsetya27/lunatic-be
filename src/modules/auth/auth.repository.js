@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt') // Ensure bcrypt is installed
 const jwt = require('jsonwebtoken') // Ensure jsonwebtoken is installed
 const { Models } = require('../../sequelize/models')
 const { Request } = require('../../helper')
+const { saveImage } = require('../../helper/file')
 
 const { User } = Models
 const { sequelize } = User
@@ -61,14 +62,14 @@ exports.getAllUser = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const user = req.user
+    const { user } = req
     const post = req.body
-    // if (req.file?.photo) {
-    //   post.photo = saveImage(req.file.photo, user.id, 'users')
-    // }
-    // if (post.delete_photo) {
-    //   post.photo = null
-    // }
+    if (req.file?.photo) {
+      post.photo_url = await saveImage(req.file.photo, user.id, 'users')
+    }
+    if (post.delete_photo) {
+      post.photo_url = null
+    }
 
     if (post.new_password) {
       post.password = post.new_password
@@ -76,6 +77,16 @@ exports.update = async (req, res) => {
 
     await user.update(post, { individualHooks: true, req })
     Request.success(res, { message: 'Success update data' })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.session = async (req, res) => {
+  try {
+    const { user } = req
+
+    Request.success(res, { data: user })
   } catch (error) {
     Request.error(res, error)
   }
