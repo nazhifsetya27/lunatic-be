@@ -1,8 +1,11 @@
 const { check } = require('express-validator')
+const bcrypt = require('bcryptjs')
 const {
   validateRequest,
   removeUndefinedRequest,
 } = require('../../helper/request.validator')
+const { Models } = require('../../sequelize/models')
+const { checkFile } = require('../../helper/file')
 
 const checkValidate = async (value, { req }) => {
   const post = req.body
@@ -20,6 +23,41 @@ const checkValidate = async (value, { req }) => {
 exports.loginValidator = [
   check('email').notEmpty().isEmail(),
   check('password').notEmpty().isString(),
+  validateRequest,
+  removeUndefinedRequest,
+]
+exports.updateValidator = [
+  check('name').notEmpty().isString().bail().isLength({ max: 60 }),
+  check('username').notEmpty().isString().bail().isLength({ max: 60 }),
+  check('email').notEmpty().isEmail().bail().isLength({ max: 60 }),
+  check('whatsapp').notEmpty().isString().bail().isLength({ max: 17 }),
+  checkFile({
+    name: 'photo',
+    required: false,
+    allow: ['png', 'jpeg', 'jpg'],
+  }),
+  check('delete_photo')
+    .optional({ values: 'falsy' })
+    .bail()
+    .isBoolean()
+    .toBoolean(),
+  validateRequest,
+  removeUndefinedRequest,
+]
+
+exports.updateValidator = [
+  check('name').notEmpty().isString().bail().isLength({ max: 60 }),
+  check('email').notEmpty().isEmail().bail().isLength({ max: 60 }),
+  checkFile({
+    name: 'photo',
+    required: false,
+    allow: ['png', 'jpeg', 'jpg'],
+  }),
+  check('delete_photo')
+    .optional({ values: 'falsy' })
+    .bail()
+    .isBoolean()
+    .toBoolean(),
   validateRequest,
   removeUndefinedRequest,
 ]

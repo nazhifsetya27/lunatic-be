@@ -44,6 +44,11 @@ exports.collections = async (req) => {
           },
         ],
       },
+      {
+        paranoid: false,
+        association: 'condition',
+        attributes: ['id', 'name'],
+      },
     ],
     offset: (page - 1) * page_size,
     order: [['updated_at', 'DESC']],
@@ -143,6 +148,11 @@ exports.detailData = async (req) => {
           },
         ],
       },
+      {
+        paranoid: false,
+        association: 'condition',
+        attributes: ['id', 'name'],
+      },
     ],
   })
 
@@ -151,6 +161,7 @@ exports.detailData = async (req) => {
   const data = {
     nama: detailData.name,
     kode: detailData.kode,
+    kondisi: detailData?.condition?.name ?? '-',
     kategory: detailData.category,
     unit: detailData?.storage?.unit?.name ?? '-',
     gedung: detailData?.storage?.building?.name ?? '-',
