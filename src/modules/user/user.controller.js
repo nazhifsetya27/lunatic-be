@@ -17,6 +17,8 @@ exports.createUser = async (req, res) => {
   try {
     const post = req.body
 
+    console.log(req.user.role, '<<< role')
+
     if (req.user.role !== 'Administrator') {
       throw new Error('Role anda tidak diizinkan')
     }
