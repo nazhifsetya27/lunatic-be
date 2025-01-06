@@ -5,6 +5,7 @@ const {
 const { Models } = require('../../sequelize/models')
 const { check, param } = require('express-validator')
 const { User } = Models
+const { Op } = require('sequelize')
 
 const checkValidate = async (value, { req }) => {
   const body = req.body
@@ -25,9 +26,9 @@ const checkValidate = async (value, { req }) => {
     throw 'Data already exist'
   }
 
-  if (req.user.role !== 'Administrator' && body.password) {
-    throw 'Only Administrator can change password'
-  }
+  // if (req.user.role !== 'Administrator' && body.password) {
+  //   throw 'Only Administrator can change password'
+  // }
 }
 
 exports.findOneData = async (req, res, next) => {
@@ -61,7 +62,7 @@ exports.updateRequest = [
   check('name').notEmpty().bail().isString(),
   // check('password').optional().bail().isString(),
   check('password')
-    .optional() 
+    .optional()
     .bail()
     .isString()
     .bail()

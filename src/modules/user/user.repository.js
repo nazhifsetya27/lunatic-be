@@ -4,7 +4,7 @@ const { Models } = require('../../sequelize/models')
 const { User } = Models
 
 exports.collections = async (req, res) => {
-  const { page = 1, page_size = 10, search } = req.query
+  const { page = 1, page_size = 10, archive, search } = req.query
   const numberPage = Number(page)
 
   const where = { [Op.and]: [] }
@@ -17,6 +17,11 @@ exports.collections = async (req, res) => {
     limit: page_size,
     offset: (page - 1) * page_size,
     order: [['created_at', 'DESC']],
+  }
+
+  if (archive === '1') {
+    where.deleted_at = { [Op.ne]: null }
+    query.paranoid = false
   }
 
   const data = await User.findAndCountAll(query)
