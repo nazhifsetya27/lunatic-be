@@ -36,6 +36,8 @@ app.use(
 app.use(bodyParser.text({ limit: '200mb' }))
 app.use(upload.any()) // This will handle all form-data file uploads
 
+app.use('/public', express.static('public'))
+
 app.get('/', (req, res) => {
   res.json('service lunatic BE is running')
 })

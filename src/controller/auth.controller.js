@@ -23,32 +23,13 @@ exports.auth = async (req, res, next) => {
 
     const user = await User.findOne({
       where: { id: verify.id },
-      attributes: ['id', 'name', 'email', 'role'],
+      attributes: ['id', 'name', 'email', 'role', 'photo_url'],
     })
 
     if (!user) throw 'user not found'
 
-    // const my_access = user.role.access ?? []
-
-    // let valid = false
-    // my_access.forEach((access) => {
-    //   if (
-    //     req.baseUrl.includes('auth') ||
-    //     req.baseUrl.includes('option') ||
-    //     access.name === 'All Module Warehouse' ||
-    //     req.baseUrl.includes(access.data_b)
-    //   ) {
-    //     valid = true
-    //   }
-    // })
-
-    // if (!valid) {
-    //   return res
-    //     .status(500)
-    //     .send({ message: 'Access denied', title: 'Not Allowed' })
-    // }
-
     req.user = user
+
     next()
   } catch (error) {
     console.log(error)

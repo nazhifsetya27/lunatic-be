@@ -5,7 +5,7 @@ const assets = [
     kode: 'F1',
     category: 'Furniture',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -15,7 +15,7 @@ const assets = [
     kode: 'F2',
     category: 'Furniture',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -25,7 +25,7 @@ const assets = [
     kode: 'F3',
     category: 'Furniture',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -35,7 +35,7 @@ const assets = [
     kode: 'F4',
     category: 'Furniture',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -45,7 +45,7 @@ const assets = [
     kode: 'F5',
     category: 'Furniture',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -55,7 +55,7 @@ const assets = [
     kode: 'E1',
     category: 'Elektronik',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -65,7 +65,7 @@ const assets = [
     kode: 'E2',
     category: 'Elektronik',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -75,7 +75,7 @@ const assets = [
     kode: 'E3',
     category: 'Elektronik',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -85,7 +85,7 @@ const assets = [
     kode: 'E4',
     category: 'Elektronik',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -95,7 +95,7 @@ const assets = [
     kode: 'E5',
     category: 'Elektronik',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -105,7 +105,7 @@ const assets = [
     kode: 'U1',
     category: 'Umum',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -115,7 +115,7 @@ const assets = [
     kode: 'U2',
     category: 'Umum',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -125,7 +125,7 @@ const assets = [
     kode: 'U3',
     category: 'Umum',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -135,7 +135,7 @@ const assets = [
     kode: 'U4',
     category: 'Umum',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },
@@ -145,7 +145,7 @@ const assets = [
     kode: 'U5',
     category: 'Umum',
     quantity: 1,
-    // room_id: 'e18e5454-dda5-49f2-96b1-8360d729b5e3', // Ruangan SCADA
+    condition_id: '714f523c-0130-41fa-8d09-e0025731b0db',
     created_at: new Date(),
     updated_at: new Date(),
   },

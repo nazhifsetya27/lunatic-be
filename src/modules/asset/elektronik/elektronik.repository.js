@@ -3,8 +3,9 @@
 /* eslint-disable vars-on-top */
 const { Op } = require('sequelize')
 const moment = require('moment')
-const { Models } = require('../../../sequelize/models')
 const { Workbook } = require('excel4node')
+const { Models } = require('../../../sequelize/models')
+
 const { sequelize } = Models.Asset
 
 const { Asset, StorageManagement } = Models
@@ -46,6 +47,11 @@ exports.collections = async (req) => {
             attributes: ['id', 'name'],
           },
         ],
+      },
+      {
+        paranoid: false,
+        association: 'condition',
+        attributes: ['id', 'name'],
       },
     ],
     offset: (page - 1) * page_size,
@@ -146,6 +152,11 @@ exports.detailData = async (req) => {
           },
         ],
       },
+      {
+        paranoid: false,
+        association: 'condition',
+        attributes: ['id', 'name'],
+      },
     ],
   })
 
@@ -154,6 +165,7 @@ exports.detailData = async (req) => {
   const data = {
     nama: detailData.name,
     kode: detailData.kode,
+    kondisi: detailData?.condition?.name ?? '-',
     kategory: detailData.category,
     unit: detailData?.storage?.unit?.name ?? '-',
     gedung: detailData?.storage?.building?.name ?? '-',
@@ -262,19 +274,19 @@ exports.updateData = async (req) => {
 }
 
 exports.example = async (req, res) => {
-  var workbook = new Workbook()
-  var worksheet = workbook.addWorksheet('Asset')
+  const workbook = new Workbook()
+  const worksheet = workbook.addWorksheet('Asset')
 
   const asset_header = [
-    'Name', //A
-    'Kode', //B
-    'Category', //C
-    'Quantity', //D
-    'Condition', //E
-    'Unit', //F
-    'Gedung', //G
-    'Lantai', //H
-    'Ruangan', //I
+    'Name', // A
+    'Kode', // B
+    'Category', // C
+    'Quantity', // D
+    'Condition', // E
+    'Unit', // F
+    'Gedung', // G
+    'Lantai', // H
+    'Ruangan', // I
   ]
 
   asset_header.map((key, index) => {
@@ -492,20 +504,20 @@ exports.collectionExport = async (req, res) => {
     order: [['created_at', 'desc']],
   })
 
-  var workbook = new Workbook()
-  var worksheet = workbook.addWorksheet('Asset')
-  var worksheet2 = workbook.addWorksheet('Filter')
+  const workbook = new Workbook()
+  const worksheet = workbook.addWorksheet('Asset')
+  const worksheet2 = workbook.addWorksheet('Filter')
 
   const asset_header = [
-    'Name', //1
-    'Kode', //2
-    'Category', //3
-    'Quantity', //4
-    'Condition', //5
-    'Unit', //6
-    'Gedung', //7
-    'Lantai', //8
-    'Ruangan', //9
+    'Name', // 1
+    'Kode', // 2
+    'Category', // 3
+    'Quantity', // 4
+    'Condition', // 5
+    'Unit', // 6
+    'Gedung', // 7
+    'Lantai', // 8
+    'Ruangan', // 9
   ]
 
   asset_header.map((key, index) => {
