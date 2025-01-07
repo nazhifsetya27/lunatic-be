@@ -1,5 +1,5 @@
-const { Op } = require('sequelize')
 const { check } = require('express-validator')
+const { Op } = require('sequelize')
 const {
   validateRequest,
   removeUndefinedRequest,
@@ -7,18 +7,30 @@ const {
 const { Models } = require('../../../../sequelize/models')
 
 exports.storeRequest = [
-  check('iccid')
+  check('name')
     .notEmpty()
     .bail()
     .isString()
     .bail()
     .custom(async (value) => {
-      const data = await Models.SimCard.findOne({
-        where: { iccid: { [Op.iLike]: value } },
-        paranoid: false,
+      const existingData = await Models.Building.findOne({
+        where: {
+          name: { [Op.like]: value },
+        },
       })
-      if (data) throw new FlowError('ICCID already exists')
+
+      if (existingData) throw 'nama sudah ada!'
     }),
+  check('kode').notEmpty().bail().isString(),
+  check('description').optional().bail().isString(),
+  validateRequest,
+  removeUndefinedRequest,
+]
+
+exports.updateRequest = [
+  check('name').optional().bail().isString(),
+  check('kode').optional().bail().isString(),
+  check('description').optional().bail().isString(),
   validateRequest,
   removeUndefinedRequest,
 ]

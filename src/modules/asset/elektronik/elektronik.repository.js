@@ -11,7 +11,7 @@ exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
   const numberPage = Number(page)
 
-  const where = { [Op.and]: { category: 'Elektronik' } }
+  const where = { [Op.and]: [{ category: 'Elektronik' }] }
 
   if (search)
     where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
@@ -184,17 +184,18 @@ exports.storeData = async (req) => {
     const { name, kode, unit_id, building_id, floor_id, room_id } = req.body
 
     if (!unit_id) throw 'unit_id is required!'
-    if (!building_id) throw 'unit_id is required!'
-    if (!floor_id) throw 'unit_id is required!'
-    if (!room_id) throw 'unit_id is required!'
+    if (!building_id) throw 'building_id is required!'
+
+    const whereClause = {
+      unit_id,
+      building_id,
+    }
+
+    if (floor_id) whereClause.floor_id = floor_id
+    if (room_id) whereClause.room_id = room_id
 
     const storageManagement = await StorageManagement.findOne({
-      where: {
-        unit_id,
-        building_id,
-        floor_id,
-        room_id,
-      },
+      where: whereClause,
     })
     if (!storageManagement) throw 'storageManagement not found'
 
@@ -204,6 +205,7 @@ exports.storeData = async (req) => {
         kode,
         room_id,
         storage_management_id: storageManagement.id,
+        condition_id: '714f523c-0130-41fa-8d09-e0025731b0db', // default SANGAT BAIK
         category: 'Elektronik',
       },
       { transaction }
