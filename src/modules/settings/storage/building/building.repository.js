@@ -2,6 +2,7 @@ const { Op } = require('sequelize')
 const { Models } = require('../../../../sequelize/models')
 
 const { Building } = Models
+const { sequelize } = Building
 
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
@@ -42,4 +43,63 @@ exports.collections = async (req) => {
     },
     // filter: [],
   }
+}
+
+exports.showData = async (req) => {
+  const data = await Models.Building.findOne({
+    where: { id: req.params.id },
+    paranoid: false,
+  })
+  if (!data) throw 'Data not found'
+
+  return { data }
+}
+
+exports.storeData = async (req) => {
+  const data = await sequelize.transaction(async (transaction) => {
+    const { name, kode } = req.body
+    const result = await Building.create({ name, kode }, { transaction })
+    return result
+  })
+
+  return { data }
+}
+
+exports.updateData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const post = req.body
+
+    const building = await Models.Building.findOne({
+      where: { id: req.params.id },
+      paranoid: false,
+      transaction,
+    })
+
+    if (!building) throw 'Data not found'
+
+    await building.update(post, { req, transaction })
+  })
+}
+
+exports.removeData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const data = await Models.Building.findOne({
+      where: { id: req.params.id },
+      transaction,
+    })
+    if (!data) throw 'Data not found'
+    await data.destroy({ req, transaction })
+  })
+}
+
+exports.restoreData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const data = await Models.Building.findOne({
+      where: { id: req.params.id },
+      paranoid: false,
+      transaction,
+    })
+    if (!data) throw 'Data not found'
+    await data.restore({ req, transaction })
+  })
 }

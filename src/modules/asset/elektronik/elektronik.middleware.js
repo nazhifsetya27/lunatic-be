@@ -6,6 +6,7 @@ const {
 } = require('../../../helper/request.validator')
 const { Models } = require('../../../sequelize/models')
 const { File } = require('../../../helper')
+
 const { checkFile, readFileExcel } = File
 
 exports.storeRequest = [
@@ -17,7 +18,7 @@ exports.storeRequest = [
     .custom(async (value, { req }) => {
       const existingData = await Models.Asset.findOne({
         where: {
-          category: 'Umum',
+          category: 'Elektronik',
           name: { [Op.like]: value },
         },
       })
@@ -27,8 +28,8 @@ exports.storeRequest = [
   check('kode').notEmpty().bail().isString(),
   check('unit_id').notEmpty().bail().isUUID(4),
   check('building_id').notEmpty().bail().isUUID(4),
-  check('floor_id').notEmpty().bail().isUUID(4),
-  check('room_id').notEmpty().bail().isUUID(4),
+  check('floor_id').optional().bail().isUUID(4),
+  check('room_id').optional().bail().isUUID(4),
   validateRequest,
   removeUndefinedRequest,
 ]
@@ -46,8 +47,8 @@ exports.updateRequest = [
 
 exports.convertExcel = [
   checkFile({
-    name: "assets",
-    allow: ["vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    name: 'assets',
+    allow: ['vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
     multi: false,
     required: true,
   }),

@@ -24,6 +24,9 @@ const Room = sequelizeDB.define(
     //   type: DataTypes.STRING,
     //   allowNull: true,
     // },
+    description: {
+      type: Sequelize.TEXT,
+    },
     createdAt: {
       type: Sequelize.DATE,
     },
