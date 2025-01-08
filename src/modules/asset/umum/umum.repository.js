@@ -1,6 +1,7 @@
 const { Op } = require('sequelize')
 const moment = require('moment')
 const { Models } = require('../../../sequelize/models')
+const { Query } = require('../../../helper')
 
 const { sequelize } = Models.Asset
 
@@ -11,6 +12,8 @@ exports.collections = async (req) => {
   const numberPage = Number(page)
 
   const where = { [Op.and]: [{ category: 'Umum' }] }
+
+  if (filter) where[Op.and].push(Query.parseFilter(filter, Models.Asset))
 
   if (search)
     where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
@@ -75,7 +78,13 @@ exports.collections = async (req) => {
       total_page: totalPage || 1,
       total,
     },
-    // filter: [],
+    filter: [
+      Query.filter('condition_id', 'Condition', 'select', {
+        path: '/option/condition-list',
+        key: 'id',
+        optionLabel: 'name',
+      }),
+    ],
   }
 }
 

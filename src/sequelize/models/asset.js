@@ -34,6 +34,10 @@ const Asset = sequelizeDB.define(
     storage_management_id: {
       type: Sequelize.STRING(36),
     },
+    // kalau ada logic buat filter unit, baru nyalain
+    // unit_id: {
+    //   type: Sequelize.STRING(36),
+    // },
     createdAt: {
       type: Sequelize.DATE,
     },
