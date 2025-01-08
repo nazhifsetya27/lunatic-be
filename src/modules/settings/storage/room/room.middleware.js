@@ -19,7 +19,7 @@ exports.storeRequest = [
         },
       })
 
-      if (existingData) throw 'nama sudah ada!'
+      if (existingData) throw 'Name already exist!'
     }),
   check('kode').notEmpty().bail().isString(),
   check('description').optional().bail().isString(),

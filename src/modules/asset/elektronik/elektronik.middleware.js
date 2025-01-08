@@ -23,7 +23,7 @@ exports.storeRequest = [
         },
       })
 
-      if (existingData) throw 'nama sudah ada!'
+      if (existingData) throw 'Name already exist!'
     }),
   check('kode').notEmpty().bail().isString(),
   check('unit_id').notEmpty().bail().isUUID(4),
