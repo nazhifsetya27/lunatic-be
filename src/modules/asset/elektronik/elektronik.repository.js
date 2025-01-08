@@ -1,3 +1,6 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable no-var */
+/* eslint-disable vars-on-top */
 const { Op } = require('sequelize')
 const moment = require('moment')
 const { Workbook } = require('excel4node')
@@ -300,6 +303,182 @@ exports.example = async (req, res) => {
   asset_header.map((key, index) => {
     worksheet.cell(1, index + 1).string(key)
   })
+
+  var style = workbook.createStyle({
+    numberFormat: '@',
+  })
+  const totalRows = 15000
+  const totalCols = asset_header.length
+
+  for (let row = 2; row <= totalRows; row++) {
+    for (let col = 1; col <= totalCols; col++) {
+      worksheet.cell(row, col).style(style)
+    }
+  }
+
+  var worksheet2 = workbook.addWorksheet('Category', {
+    sheetProtection: { selectLockedCells: true },
+  })
+
+  const category_header = ['ID', 'Name']
+  category_header.map((key, index) => {
+    worksheet2.cell(1, index + 1).string(key)
+  })
+
+  const categoryData = [
+    {
+      id: '1',
+      name: 'Elektronik',
+    },
+    {
+      id: '2',
+      name: 'Furniture',
+    },
+    {
+      id: '3',
+      name: 'Umum',
+    },
+  ]
+  categoryData.map((data, index) => {
+    worksheet2.cell(index + 2, 1).string(data.id)
+    worksheet2.cell(index + 2, 2).string(data.name)
+  })
+
+  worksheet.addDataValidation({
+    type: 'list',
+    error: 'Invalid choice was chosen',
+    showDropDown: true,
+    allowBlank: 1,
+    sqref: 'C2:C1000',
+    formulas: [`=Category!$B$2:$B${parseInt(categoryData.length + 1)}`],
+  })
+
+  var worksheet3 = workbook.addWorksheet('Condition', {
+    sheetProtection: { selectLockedCells: true },
+  })
+
+  const condition_header = ['ID', 'Name']
+  condition_header.map((key, index) => {
+    worksheet3.cell(1, index + 1).string(key)
+  })
+
+  const condition = await Models.Condition.findAll()
+
+  condition.map((data, index) => {
+    worksheet3.cell(index + 2, 1).string(data.id)
+    worksheet3.cell(index + 2, 2).string(data.name)
+  })
+
+  worksheet.addDataValidation({
+    type: 'list',
+    error: 'Invalid choice was chosen',
+    showDropDown: true,
+    allowBlank: 1,
+    sqref: 'E2:E1000',
+    formulas: [`=Condition!$B$2:$B${parseInt(condition.length + 1)}`],
+  })
+
+  var worksheet4 = workbook.addWorksheet('Unit', {
+    sheetProtection: { selectLockedCells: true },
+  })
+
+  const unit_header = ['ID', 'Name']
+  unit_header.map((key, index) => {
+    worksheet4.cell(1, index + 1).string(key)
+  })
+
+  const unit = await Models.Unit.findAll()
+
+  unit.map((data, index) => {
+    worksheet4.cell(index + 2, 1).string(data.id)
+    worksheet4.cell(index + 2, 2).string(data.name)
+  })
+
+  worksheet.addDataValidation({
+    type: 'list',
+    error: 'Invalid choice was chosen',
+    showDropDown: true,
+    allowBlank: 1,
+    sqref: 'F2:F1000',
+    formulas: [`=Unit!$B$2:$B${parseInt(unit.length + 1)}`],
+  })
+
+  var worksheet5 = workbook.addWorksheet('Gedung', {
+    sheetProtection: { selectLockedCells: true },
+  })
+
+  const gedung_header = ['ID', 'Name']
+  gedung_header.map((key, index) => {
+    worksheet5.cell(1, index + 1).string(key)
+  })
+
+  const gedung = await Models.Building.findAll()
+
+  gedung.map((data, index) => {
+    worksheet5.cell(index + 2, 1).string(data.id)
+    worksheet5.cell(index + 2, 2).string(data.name)
+  })
+
+  worksheet.addDataValidation({
+    type: 'list',
+    error: 'Invalid choice was chosen',
+    showDropDown: true,
+    allowBlank: 1,
+    sqref: 'G2:G1000',
+    formulas: [`=Gedung!$B$2:$B${parseInt(gedung.length + 1)}`],
+  })
+
+  var worksheet6 = workbook.addWorksheet('Lantai', {
+    sheetProtection: { selectLockedCells: true },
+  })
+
+  const lantai_header = ['ID', 'Name']
+  lantai_header.map((key, index) => {
+    worksheet6.cell(1, index + 1).string(key)
+  })
+
+  const lantai = await Models.Floor.findAll()
+
+  lantai.map((data, index) => {
+    worksheet6.cell(index + 2, 1).string(data.id)
+    worksheet6.cell(index + 2, 2).string(data.name)
+  })
+
+  worksheet.addDataValidation({
+    type: 'list',
+    error: 'Invalid choice was chosen',
+    showDropDown: true,
+    allowBlank: 1,
+    sqref: 'H2:H1000',
+    formulas: [`=Lantai!$B$2:$B${parseInt(lantai.length + 1)}`],
+  })
+
+  var worksheet7 = workbook.addWorksheet('Ruangan', {
+    sheetProtection: { selectLockedCells: true },
+  })
+
+  const ruangan_header = ['ID', 'Name']
+  ruangan_header.map((key, index) => {
+    worksheet7.cell(1, index + 1).string(key)
+  })
+
+  const ruangan = await Models.Room.findAll()
+
+  ruangan.map((data, index) => {
+    worksheet7.cell(index + 2, 1).string(data.id)
+    worksheet7.cell(index + 2, 2).string(data.name)
+  })
+
+  worksheet.addDataValidation({
+    type: 'list',
+    error: 'Invalid choice was chosen',
+    showDropDown: true,
+    allowBlank: 1,
+    sqref: 'I2:I1000',
+    formulas: [`=Ruangan!$B$2:$B${parseInt(ruangan.length + 1)}`],
+  })
+
+  workbook.write('example-import-asset.xlsx', res)
 }
 
 exports.collectionExport = async (req, res) => {
