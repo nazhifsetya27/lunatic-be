@@ -6,6 +6,8 @@ const Asset = require('./asset')
 const Condition = require('./condition')
 const Unit = require('./unit')
 const StorageManagement = require('./storage_management')
+const StockAdjustment = require('./stock_adjustment')
+const StockAdjustmentInventory = require('./stock_adjustment_inventory')
 
 const initRelationships = require('./config/relationship')
 
@@ -18,6 +20,8 @@ const models = {
   Condition,
   Unit,
   StorageManagement,
+  StockAdjustment,
+  StockAdjustmentInventory,
 }
 
 initRelationships(models)

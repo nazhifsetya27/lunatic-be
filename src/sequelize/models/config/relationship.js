@@ -1,8 +1,18 @@
 // const Unit = require("../unit")
 
 module.exports = (models) => {
-  const { Floor, Building, Room, Asset, StorageManagement, Unit, Condition } =
-    models
+  const {
+    User,
+    Floor,
+    Building,
+    Room,
+    Asset,
+    StorageManagement,
+    Unit,
+    Condition,
+    StockAdjustment,
+    StockAdjustmentInventory,
+  } = models
 
   Floor.belongsTo(Building, {
     foreignKey: 'gedung_id',
@@ -13,16 +23,6 @@ module.exports = (models) => {
     foreignKey: 'gedung_id',
     as: 'building',
   })
-
-  // Room.belongsTo(Floor, {
-  //   foreignKey: 'lantai_id',
-  //   as: 'floor',
-  // })
-
-  // Floor.hasMany(Room, {
-  //   foreignKey: 'lantai_id',
-  //   as: 'floor',
-  // })
 
   Asset.belongsTo(StorageManagement, {
     foreignKey: 'storage_management_id',
@@ -74,5 +74,59 @@ module.exports = (models) => {
   Room.hasMany(StorageManagement, {
     foreignKey: 'room_id',
     as: 'room_storage',
+  })
+
+  /* STOCK ADJUSTMENT */
+  StockAdjustment.belongsTo(User, {
+    foreignKey: 'created_by_id',
+    as: 'created_by',
+  })
+
+  User.hasMany(StockAdjustment, {
+    foreignKey: 'created_by_id',
+    as: 'created_by',
+  })
+
+  /*  STOCK ADJUSTMENT INVENTORY */
+  // stock adjustment
+  StockAdjustmentInventory.belongsTo(StockAdjustment, {
+    foreignKey: 'stock_adjustment_id',
+    as: 'stock_adjustment',
+  })
+
+  StockAdjustment.hasMany(StockAdjustmentInventory, {
+    foreignKey: 'stock_adjustment_id',
+    as: 'stock_adjustment',
+  })
+  // asset
+  StockAdjustmentInventory.belongsTo(Asset, {
+    foreignKey: 'asset_id',
+    as: 'asset',
+  })
+
+  Asset.hasMany(StockAdjustmentInventory, {
+    foreignKey: 'asset_id',
+    as: 'asset',
+  })
+
+  // condition
+  StockAdjustmentInventory.belongsTo(Condition, {
+    foreignKey: 'previous_condition_id',
+    as: 'previous_condition',
+  })
+
+  Condition.hasMany(StockAdjustmentInventory, {
+    foreignKey: 'previous_condition_id',
+    as: 'previous_condition',
+  })
+
+  StockAdjustmentInventory.belongsTo(Condition, {
+    foreignKey: 'current_condition_id',
+    as: 'current_condition',
+  })
+
+  Condition.hasMany(StockAdjustmentInventory, {
+    foreignKey: 'current_condition_id',
+    as: 'current_condition',
   })
 }

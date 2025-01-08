@@ -1,3 +1,4 @@
+const uuid = require('uuid')
 const { Request } = require('../../../helper')
 const { Models } = require('../../../sequelize/models')
 const {
@@ -10,7 +11,6 @@ const {
   updateData,
   example,
 } = require('./elektronik.repository')
-const uuid = require('uuid')
 
 exports.index = async (req, res) => {
   try {
@@ -76,22 +76,22 @@ exports.importData = async (req, res) => {
   try {
     const { assets, category } = req.body
 
-    let socket_name = uuid.v4()
+    const socket_name = uuid.v4()
     if (!assets?.length) throw 'Data is empty'
 
     const startImport = async () => {
       let success = 0
-      let failed = []
+      const failed = []
       let lastProgess = null
 
       for (let i = 0; i < assets.length; i++) {
         const element = assets[i]
 
         const asset = {
-          name: element['Name'],
-          kode: element['Kode'],
-          category: element['Category'],
-          quantity: element['Quantity'],
+          name: element.Name,
+          kode: element.Kode,
+          category: element.Category,
+          quantity: element.Quantity,
         }
 
         element.errors = []
@@ -99,8 +99,8 @@ exports.importData = async (req, res) => {
         if (!asset.name) element.errors.push(`Name is required`)
         if (!asset.kode) element.errors.push(`Kode is required`)
         if (!asset.category) element.errors.push(`Category is required`)
-        if (!element['Condition']) element.errors.push(`Category is required`)
-        let unitName = element['Unit'].split(',')
+        if (!element.Condition) element.errors.push(`Category is required`)
+        const unitName = element.Unit.split(',')
         const unitData = await Models.Unit.findOne({
           where: {
             name: {
@@ -112,9 +112,9 @@ exports.importData = async (req, res) => {
           },
         })
         if (!unitData)
-          element.errors.push(`Unit with value ${element['Unit']} not exist`)
+          element.errors.push(`Unit with value ${element.Unit} not exist`)
 
-        let gedungName = element['Gedung'].split(',')
+        const gedungName = element.Gedung.split(',')
         const gedungData = await Models.Building.findOne({
           where: {
             name: {
@@ -126,11 +126,9 @@ exports.importData = async (req, res) => {
           },
         })
         if (!gedungData)
-          element.errors.push(
-            `Gedung with value ${element['Gedung']} not exist`
-          )
+          element.errors.push(`Gedung with value ${element.Gedung} not exist`)
 
-        let lantaiName = element['Lantai'].split(',')
+        const lantaiName = element.Lantai.split(',')
         const lantaiData = await Models.Floor.findOne({
           where: {
             name: {
@@ -142,11 +140,9 @@ exports.importData = async (req, res) => {
           },
         })
         if (!lantaiData)
-          element.errors.push(
-            `Lantai with value ${element['Lantai']} not exist`
-          )
+          element.errors.push(`Lantai with value ${element.Lantai} not exist`)
 
-        let ruanganName = element['Ruangan'].split(',')
+        const ruanganName = element.Ruangan.split(',')
         const ruanganData = await Models.Room.findOne({
           where: {
             name: {
@@ -158,9 +154,7 @@ exports.importData = async (req, res) => {
           },
         })
         if (!ruanganData)
-          element.errors.push(
-            `Ruangan with value ${element['Ruangan']} not exist`
-          )
+          element.errors.push(`Ruangan with value ${element.Ruangan} not exist`)
 
         const storageManagement = await Models.StorageManagement.findOne({
           where: {
@@ -181,7 +175,7 @@ exports.importData = async (req, res) => {
 
         const condition = await Models.Condition.findOne({
           where: {
-            name: element['Condition'],
+            name: element.Condition,
           },
         })
 
@@ -194,12 +188,12 @@ exports.importData = async (req, res) => {
           element.errors = element.errors.join(', ')
           failed.push(element)
         }
-        let progress = Math.ceil((i / assets.length) * 100)
+        const progress = Math.ceil((i / assets.length) * 100)
 
         if (lastProgess != progress) {
           lastProgess = progress
-          io.of('/v1').emit('upload-' + socket_name, {
-            progress: progress,
+          io.of('/v1').emit(`upload-${socket_name}`, {
+            progress,
           })
         }
 
@@ -225,11 +219,11 @@ exports.importData = async (req, res) => {
       console.log('Success : ', success)
       console.log('Failed : ', failed.length)
 
-      io.of('/v1').emit('upload-' + socket_name, {
+      io.of('/v1').emit(`upload-${socket_name}`, {
         progress: 100,
       })
       setTimeout(() => {
-        io.of('/v1').emit('result-' + socket_name, {
+        io.of('/v1').emit(`result-${socket_name}`, {
           result: { success, failed },
         })
       }, 1000)
@@ -239,8 +233,8 @@ exports.importData = async (req, res) => {
     Request.success(res, {
       message: 'Success import data',
       data: {
-        progress: 'upload-' + socket_name,
-        result: 'result-' + socket_name,
+        progress: `upload-${socket_name}`,
+        result: `result-${socket_name}`,
       },
     })
   } catch (error) {
