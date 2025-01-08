@@ -22,6 +22,10 @@ module.exports = {
       condition_id: {
         type: Sequelize.STRING(36),
       },
+      // kalau ada logic buat filter unit, baru nyalain
+      // unit_id: {
+      //   type: Sequelize.STRING(36),
+      // },
       quantity: {
         type: Sequelize.INTEGER(),
         // unique: true,
