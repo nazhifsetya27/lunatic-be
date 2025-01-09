@@ -22,15 +22,6 @@ exports.storeRequest = [
       })
       if (existingData) throw 'Name already exist!'
     }),
-  check('status')
-    .notEmpty()
-    .withMessage('Status is required')
-    .bail()
-    .isString()
-    .withMessage('Status must be a string')
-    .bail()
-    .isIn(['On progress', 'Waiting for approval', 'Approved', 'Rejected'])
-    .withMessage('Invalid status'),
   validateRequest,
   removeUndefinedRequest,
 ]
