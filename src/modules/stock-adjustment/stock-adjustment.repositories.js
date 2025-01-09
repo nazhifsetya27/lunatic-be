@@ -65,7 +65,7 @@ exports.collections = async (req) => {
 
 exports.storeData = async (req) => {
   const data = await sequelize.transaction(async (transaction) => {
-    const { name, status } = req.body
+    const { name } = req.body
     const created_by_id = req.user.id
 
     if (!created_by_id) throw 'User not found!'
@@ -73,7 +73,7 @@ exports.storeData = async (req) => {
     const stock_adjustment = await StockAdjustment.create(
       {
         name,
-        status,
+        status: 'On progress',
         created_by_id,
       },
       { req, transaction }
