@@ -32,6 +32,10 @@ const User = sequelizeDB.define(
       type: Sequelize.TEXT,
       allowNull: true,
     },
+    unit_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     createdAt: {
       type: Sequelize.DATE,
     },

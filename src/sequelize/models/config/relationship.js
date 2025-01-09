@@ -129,4 +129,10 @@ module.exports = (models) => {
     foreignKey: 'current_condition_id',
     as: 'current_condition',
   })
+
+  //user
+  User.belongsTo(Unit, {
+    foreignKey: 'unit_id',
+    as: 'unit',
+  })
 }
