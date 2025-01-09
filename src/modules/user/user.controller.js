@@ -1,6 +1,6 @@
 const { Request } = require('../../helper')
 const { Models } = require('../../sequelize/models')
-const { detailGeneral } = require('./user.repository')
+const { detailGeneral, collections } = require('./user.repository')
 
 const { User } = Models
 

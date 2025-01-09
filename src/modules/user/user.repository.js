@@ -7,6 +7,8 @@ exports.collections = async (req, res) => {
   const { page = 1, page_size = 10, archive, search } = req.query
   const numberPage = Number(page)
 
+  console.log(1)
+
   const where = { [Op.and]: [] }
 
   if (search)
