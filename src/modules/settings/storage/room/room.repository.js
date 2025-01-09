@@ -52,9 +52,61 @@ exports.collections = async (req) => {
   }
 }
 
+exports.showData = async (req) => {
+  const data = await Room.findOne({
+    where: { id: req.params.id },
+    paranoid: false,
+  })
+  if (!data) throw 'Data not found'
+
+  return { data }
+}
+
 exports.storeData = async (req) => {
   const data = await sequelize.transaction(async (transaction) => {
-    const { name, kode } = req.body
+    const post = req.body
+    const result = await Room.create(post, { transaction })
+    return result
   })
+
   return { data }
+}
+
+exports.updateData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const post = req.body
+
+    const room = await Room.findOne({
+      where: { id: req.params.id },
+      paranoid: false,
+      transaction,
+    })
+
+    if (!room) throw 'Data not found'
+
+    await room.update(post, { req, transaction })
+  })
+}
+
+exports.removeData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const data = await Room.findOne({
+      where: { id: req.params.id },
+      transaction,
+    })
+    if (!data) throw 'Data not found'
+    await data.destroy({ req, transaction })
+  })
+}
+
+exports.restoreData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const data = await Room.findOne({
+      where: { id: req.params.id },
+      paranoid: false,
+      transaction,
+    })
+    if (!data) throw 'Data not found'
+    await data.restore({ req, transaction })
+  })
 }

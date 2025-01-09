@@ -1,6 +1,7 @@
 const { Op } = require('sequelize')
 const moment = require('moment')
 const { Models } = require('../../../sequelize/models')
+const { Query } = require('../../../helper')
 
 const { sequelize } = Models.Asset
 
@@ -10,7 +11,9 @@ exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
   const numberPage = Number(page)
 
-  const where = { [Op.and]: { category: 'Furniture' } }
+  const where = { [Op.and]: [{ category: 'Furniture' }] }
+
+  if (filter) where[Op.and].push(Query.parseFilter(filter, Models.Asset))
 
   if (search)
     where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
@@ -75,7 +78,19 @@ exports.collections = async (req) => {
       total_page: totalPage || 1,
       total,
     },
-    // filter: [],
+    filter: [
+      Query.filter('condition_id', 'Condition', 'select', {
+        path: '/option/condition-list',
+        key: 'id',
+        optionLabel: 'name',
+      }),
+      // kalau ada logic buat filter unit, baru nyalain
+      // Query.filter('unit_id', 'Unit', 'select', {
+      //   path: '/option/unit-list',
+      //   key: 'id',
+      //   optionLabel: 'name',
+      // }),
+    ],
   }
 }
 
@@ -183,17 +198,18 @@ exports.storeData = async (req) => {
     const { name, kode, unit_id, building_id, floor_id, room_id } = req.body
 
     if (!unit_id) throw 'unit_id is required!'
-    if (!building_id) throw 'unit_id is required!'
-    if (!floor_id) throw 'unit_id is required!'
-    if (!room_id) throw 'unit_id is required!'
+    if (!building_id) throw 'building_id is required!'
+
+    const whereClause = {
+      unit_id,
+      building_id,
+    }
+
+    if (floor_id) whereClause.floor_id = floor_id
+    if (room_id) whereClause.room_id = room_id
 
     const storageManagement = await StorageManagement.findOne({
-      where: {
-        unit_id,
-        building_id,
-        floor_id,
-        room_id,
-      },
+      where: whereClause,
     })
     if (!storageManagement) throw 'storageManagement not found'
 
@@ -202,6 +218,8 @@ exports.storeData = async (req) => {
         name,
         kode,
         storage_management_id: storageManagement.id,
+        // unit_id, // kalau ada logic buat filter unit, baru nyalain
+        condition_id: '714f523c-0130-41fa-8d09-e0025731b0db', // default SANGAT BAIK
         category: 'Furniture',
       },
       { transaction }

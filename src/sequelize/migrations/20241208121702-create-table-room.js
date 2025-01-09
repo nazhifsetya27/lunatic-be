@@ -18,6 +18,9 @@ module.exports = {
       // lantai_id: {
       //   type: Sequelize.STRING(36),
       // },
+      description: {
+        type: Sequelize.TEXT,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

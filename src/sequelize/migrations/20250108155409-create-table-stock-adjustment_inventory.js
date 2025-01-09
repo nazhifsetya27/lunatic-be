@@ -1,36 +1,22 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('assets', {
+    await queryInterface.createTable('stock_adjustment_inventories', {
       id: {
         allowNull: false,
         type: Sequelize.STRING(36),
         primaryKey: true,
       },
-      name: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      kode: {
-        type: Sequelize.STRING(50),
-        unique: true,
-      },
-      category: {
-        type: Sequelize.STRING(50),
-        comment: ['Furniture', 'Elektronik', 'Umum'],
-      },
-      condition_id: {
+      stock_adjustment_id: {
         type: Sequelize.STRING(36),
       },
-      // kalau ada logic buat filter unit, baru nyalain
-      // unit_id: {
-      //   type: Sequelize.STRING(36),
-      // },
-      quantity: {
-        type: Sequelize.INTEGER(),
-        // unique: true,
+      asset_id: {
+        type: Sequelize.STRING(36),
       },
-      storage_management_id: {
+      previous_condition_id: {
+        type: Sequelize.STRING(36),
+      },
+      current_condition_id: {
         type: Sequelize.STRING(36),
       },
       created_at: {
@@ -49,6 +35,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('assets')
+    await queryInterface.dropTable('stock_adjustment_inventories')
   },
 }

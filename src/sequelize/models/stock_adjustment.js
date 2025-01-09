@@ -1,50 +1,35 @@
 /* eslint-disable no-param-reassign */
-const { DataTypes } = require('sequelize')
 const uuid = require('uuid')
 const { sequelizeDB, Sequelize } = require('./config')
 
-const Asset = sequelizeDB.define(
-  'assets',
+const StockAdjustment = sequelizeDB.define(
+  'stock_adjustments',
   {
     id: {
       allowNull: false,
-      type: DataTypes.STRING(36),
+      type: Sequelize.STRING(36),
       primaryKey: true,
     },
     name: {
-      type: DataTypes.STRING,
       allowNull: false,
+      type: Sequelize.STRING,
     },
-    kode: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    category: {
+    status: {
       type: Sequelize.STRING(50),
-      comment: ['Furniture', 'Elektronik', 'Umum'],
     },
-    condition_id: {
+    created_by_id: {
       type: Sequelize.STRING(36),
     },
-    quantity: {
-      type: Sequelize.INTEGER(),
-      // unique: true,
-    },
-    storage_management_id: {
-      type: Sequelize.STRING(36),
-    },
-    // kalau ada logic buat filter unit, baru nyalain
-    // unit_id: {
-    //   type: Sequelize.STRING(36),
-    // },
-    createdAt: {
+    created_at: {
+      allowNull: false,
       type: Sequelize.DATE,
     },
-    updatedAt: {
+    updated_at: {
+      allowNull: true,
       type: Sequelize.DATE,
     },
-    deletedAt: {
+    deleted_at: {
+      allowNull: true,
       type: Sequelize.DATE,
     },
   },
@@ -76,4 +61,4 @@ const Asset = sequelizeDB.define(
   }
 )
 
-module.exports = Asset
+module.exports = StockAdjustment

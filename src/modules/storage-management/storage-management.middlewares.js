@@ -41,7 +41,7 @@ exports.updateRequest = [
         },
       })
 
-      if (existingData) throw 'nama sudah ada!'
+      if (existingData) throw 'Name already exist!'
     }),
   check('kode').optional().bail().isString(),
   validateRequest,

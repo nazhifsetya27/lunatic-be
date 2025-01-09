@@ -1,7 +1,14 @@
 const { Router } = require('express')
 const { getAllUser } = require('../auth/auth.repository')
-const { createUser, show, editUser, deleteUser, detail } = require('./user.controller')
+const {
+  createUser,
+  show,
+  editUser,
+  deleteUser,
+  detail,
+} = require('./user.controller')
 const { storeRequest, findOneData } = require('./user.middleware')
+
 const router = Router()
 const { auth } = require('../../controller/auth.controller')
 

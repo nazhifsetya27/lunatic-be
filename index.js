@@ -52,6 +52,14 @@ app.use('/asset', require('./src/modules/asset/asset.routes'))
 app.use('/user', require('./src/modules/user/user.routes'))
 app.use('/settings', require('./src/modules/settings/settings.routes'))
 app.use('/option', require('./src/modules/option/option.routes'))
+app.use(
+  '/stock-adjustment',
+  require('./src/modules/stock-adjustment/stock-adjustment.routes')
+)
+app.use(
+  '/stock-adjustment-inventory',
+  require('./src/modules/stock-adjustment-inventory/stock-adjustment-inventory.routes')
+)
 
 app.listen(PORT, () => {
   console.log(`server running on PORT: ${PORT}`)
