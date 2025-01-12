@@ -40,7 +40,7 @@ exports.checkFile =
 
     try {
       if (!multi) {
-        const file = req.files?.find((e) => e.fieldname === name)
+        var file = req.files?.find((e) => e.fieldname === name)
         validate(file)
       } else {
         for (let i = 0; i < req.files.length; i++) {

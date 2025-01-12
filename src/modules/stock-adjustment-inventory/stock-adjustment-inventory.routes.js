@@ -9,11 +9,13 @@ const {
   update,
   importData,
   example,
+  adjust
 } = require('./stock-adjustment-inventory.controllers')
 const {
   storeRequest,
   updateRequest,
   convertExcel,
+  adjustRequest
 } = require('./stock-adjustment-inventory.middlewares')
 const { auth } = require('../../controller/auth.controller')
 
@@ -27,7 +29,7 @@ router.get('/:stock_adjustment_id', index)
 
 router.post('/', storeRequest, store)
 
-// router.patch('/:id', updateRequest, update)
+router.patch('/:stock_adjustment_inventory_id', adjustRequest, adjust)
 // router.patch('/:id/restore', restore)
 
 // router.delete('/:id', remove)
