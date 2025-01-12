@@ -8,6 +8,7 @@ const Unit = require('./unit')
 const StorageManagement = require('./storage_management')
 const StockAdjustment = require('./stock_adjustment')
 const StockAdjustmentInventory = require('./stock_adjustment_inventory')
+const Approval = require('./approval')
 
 const initRelationships = require('./config/relationship')
 
@@ -22,6 +23,7 @@ const models = {
   StorageManagement,
   StockAdjustment,
   StockAdjustmentInventory,
+  Approval,
 }
 
 initRelationships(models)
