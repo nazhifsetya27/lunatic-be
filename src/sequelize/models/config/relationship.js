@@ -12,6 +12,7 @@ module.exports = (models) => {
     Condition,
     StockAdjustment,
     StockAdjustmentInventory,
+    Approval,
   } = models
 
   Floor.belongsTo(Building, {
@@ -134,5 +135,21 @@ module.exports = (models) => {
   User.belongsTo(Unit, {
     foreignKey: 'unit_id',
     as: 'unit',
+  })
+
+  //approval
+  Approval.belongsTo(StockAdjustment, {
+    foreignKey: 'stock_adjustment_id',
+    as: 'stock_adjustment',
+  })
+
+  Approval.belongsTo(User, {
+    foreignKey: 'requester_id',
+    as: 'requester',
+  })
+
+  Approval.belongsTo(User, {
+    foreignKey: 'approver_id',
+    as: 'approver',
   })
 }
