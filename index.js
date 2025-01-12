@@ -61,6 +61,8 @@ app.use(
   require('./src/modules/stock-adjustment-inventory/stock-adjustment-inventory.routes')
 )
 
+app.use('/approval', require('./src/modules/approval/approval.routes'))
+
 app.listen(PORT, () => {
   console.log(`server running on PORT: ${PORT}`)
 })
