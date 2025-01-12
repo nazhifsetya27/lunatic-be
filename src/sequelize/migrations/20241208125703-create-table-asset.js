@@ -33,6 +33,10 @@ module.exports = {
       storage_management_id: {
         type: Sequelize.STRING(36),
       },
+      is_being_adjusted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

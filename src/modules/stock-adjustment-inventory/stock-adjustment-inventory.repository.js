@@ -1,10 +1,11 @@
 const { Op } = require('sequelize')
 const { Models } = require('../../sequelize/models')
 const { Query } = require('../../helper')
+const { saveImage } = require('../../helper/file')
 
 const { sequelize } = Models.StockAdjustmentInventory
 
-const { StockAdjustmentInventory } = Models
+const { StockAdjustmentInventory, Asset } = Models
 
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
@@ -53,6 +54,11 @@ exports.collections = async (req) => {
         association: 'previous_condition',
         attributes: ['id', 'name'],
       },
+      {
+        paranoid: false,
+        association: 'current_condition',
+        attributes: ['id', 'name'],
+      },
     ],
     offset: (page - 1) * page_size,
     order: [['updated_at', 'DESC']],
@@ -99,6 +105,48 @@ exports.storeData = async (req) => {
         asset_id,
         previous_condition_id,
         current_condition_id: null,
+      },
+      { req, transaction }
+    )
+
+    await Asset.update(
+      { is_being_adjusted: true },
+      {
+        where: { id: asset_id },
+        transaction,
+      }
+    )
+
+    return stock_adjustment_inventory
+  })
+
+  return { data }
+}
+
+exports.adjustData = async (req) => {
+  // file naming stock adjustment inventory -> {SA_INVENTORY_ID}
+  const data = await sequelize.transaction(async (transaction) => {
+    const { current_condition_id } = req.body
+    const { stock_adjustment_inventory_id } = req.params
+
+    const stock_adjustment_inventory = await StockAdjustmentInventory.findOne({
+      where: {
+        id: stock_adjustment_inventory_id,
+      },
+    })
+
+    // save evidence to server
+    const photo_url = await saveImage(
+      req.file.photo,
+      stock_adjustment_inventory.id,
+      'stock_adjustment'
+    )
+
+    // update condition
+    await stock_adjustment_inventory.update(
+      {
+        current_condition_id,
+        evidence_url: photo_url,
       },
       { req, transaction }
     )

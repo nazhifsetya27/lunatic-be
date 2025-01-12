@@ -38,6 +38,10 @@ const Asset = sequelizeDB.define(
     // unit_id: {
     //   type: Sequelize.STRING(36),
     // },
+    is_being_adjusted: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
     createdAt: {
       type: Sequelize.DATE,
     },

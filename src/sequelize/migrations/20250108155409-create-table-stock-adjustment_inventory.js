@@ -19,6 +19,9 @@ module.exports = {
       current_condition_id: {
         type: Sequelize.STRING(36),
       },
+      evidence_url: {
+        type: Sequelize.STRING(255),
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

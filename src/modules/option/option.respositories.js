@@ -2,7 +2,8 @@ const { Op } = require('sequelize')
 const { Models } = require('../../sequelize/models')
 const { Request } = require('../../helper')
 
-const { Unit, Building, Floor, Room, StorageManagement, Condition } = Models
+const { Unit, Building, Floor, Room, StorageManagement, Condition, Asset } =
+  Models
 
 exports.unitList = async (req, res) => {
   try {
@@ -135,6 +136,37 @@ exports.conditionList = async (req, res) => {
       data: await Condition.findAll({
         where,
         attributes: ['id', 'name'],
+        order: [['name', 'asc']],
+      }),
+    })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.assetList = async (req, res) => {
+  try {
+    const { search } = req.query
+    const where = { [Op.and]: [{ is_being_adjusted: false }] }
+
+    if (search)
+      where[Op.or] = {
+        name: {
+          [Op.iLike]: `%${search}%`,
+        },
+      }
+
+    Request.success(res, {
+      data: await Asset.findAll({
+        where,
+        attributes: ['id', 'name', 'category', 'kode'],
+        include: [
+          {
+            paranoid: false,
+            association: 'condition',
+            attributes: ['id', 'name'],
+          },
+        ],
         order: [['name', 'asc']],
       }),
     })
