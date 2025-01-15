@@ -14,6 +14,12 @@ module.exports = {
       acquire: 30000,
       idle: 5000,
     },
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // Skip certificate validation (optional, use with caution)
+      },
+    },
   },
   production: {
     username: process.env.DB_USER,

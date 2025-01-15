@@ -10,6 +10,12 @@ exports.sequelizeDB = new Sequelize.Sequelize(
     dialect: process.env.DB_DIALECT,
     port: process.env.DB_PORT,
     operatorAliases: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // Skip certificate validation (optional, use with caution)
+      },
+    },
     pool: {
       max: 5,
       min: 0,
