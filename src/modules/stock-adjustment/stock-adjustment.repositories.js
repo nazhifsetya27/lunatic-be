@@ -4,10 +4,10 @@ const { Query } = require('../../helper')
 
 const { sequelize } = Models.StockAdjustment
 
-const { StockAdjustment } = Models
+const { StockAdjustment, StockAdjustmentInventory } = Models
 
 exports.collections = async (req) => {
-  const { page = 1, page_size = 10, search, archive, filter } = req.query
+  const { page = 1, page_size = 10, search, archive, filter, type } = req.query
   const numberPage = Number(page)
 
   const where = { [Op.and]: [] }
@@ -37,6 +37,10 @@ exports.collections = async (req) => {
     query.paranoid = false
   } else if (archive === '2') {
     where.deleted_at = { [Op.is]: null }
+  }
+
+  if (type === 'on_progress') {
+    where.status = 'On progress'
   }
 
   const data = await StockAdjustment.findAndCountAll(query)
@@ -83,4 +87,102 @@ exports.storeData = async (req) => {
   })
 
   return { data }
+}
+
+exports.detailData = async (req) => {
+  const data = await sequelize.transaction(async (transaction) => {
+    const { id } = req.params
+
+    const stock_adjustment = await StockAdjustment.findOne({
+      where: { id },
+      include: [
+        {
+          paranoid: false,
+          association: 'created_by',
+          attributes: ['id', 'name'],
+        },
+      ],
+    })
+    if (!stock_adjustment) throw 'stock adjustment not found!'
+
+    const detailData = {
+      'Created date': stock_adjustment?.created_at,
+      'Created by': stock_adjustment?.created_by?.name,
+    }
+    return detailData
+  })
+
+  return { data }
+}
+
+exports.detailSAResultData = async (req) => {
+  const { id } = req.params
+  const { page_size = 10, page_detail = 1, detailTab } = req.query
+
+  const stock_adjustment = await StockAdjustment.findOne({
+    where: { id },
+    include: [
+      {
+        paranoid: false,
+        association: 'created_by',
+        attributes: ['id', 'name'],
+      },
+    ],
+  })
+  if (!stock_adjustment) throw 'stock adjustment not found!'
+
+  const whereSAI = { stock_adjustment_id: stock_adjustment.id, [Op.and]: [] }
+  switch (detailTab) {
+    case 'furniture':
+      whereSAI[Op.and].push({ '$asset.category$': 'Furniture' })
+      break
+    case 'elektronik':
+      whereSAI[Op.and].push({ '$asset.category$': 'Elektronik' })
+      break
+    case 'umum':
+      whereSAI[Op.and].push({ '$asset.category$': 'Umum' })
+      break
+
+    default:
+      break
+  }
+
+  const detailStockAdjustmentResult =
+    await StockAdjustmentInventory.findAndCountAll({
+      where: whereSAI,
+      include: [
+        {
+          paranoid: false,
+          association: 'asset',
+        },
+        {
+          paranoid: false,
+          association: 'previous_condition',
+          attributes: ['id', 'name'],
+        },
+        {
+          paranoid: false,
+          association: 'current_condition',
+          attributes: ['id', 'name'],
+        },
+      ],
+    })
+  if (!detailStockAdjustmentResult)
+    throw 'stock adjustment inventory not found!'
+
+  const total = detailStockAdjustmentResult.count
+  const numberPage = Number(page_detail)
+  const totalPage = Math.ceil(total / page_size)
+
+  return {
+    data: detailStockAdjustmentResult.rows,
+    meta: {
+      current_page: numberPage,
+      prev_page: numberPage === 1 ? null : numberPage - 1,
+      next_page:
+        numberPage === totalPage || total <= totalPage ? null : numberPage + 1,
+      total_page: totalPage || 1,
+      total,
+    },
+  }
 }

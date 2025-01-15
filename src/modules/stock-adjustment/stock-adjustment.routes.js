@@ -9,6 +9,7 @@ const {
   update,
   importData,
   example,
+  detailSAResult,
 } = require('./stock-adjustment.controllers')
 const {
   storeRequest,
@@ -21,9 +22,8 @@ const router = express.Router()
 
 router.use(auth)
 router.get('/', index)
-// router.get("/example", example);
-// router.get('/:id', show)
-// router.get('/:id/detail', detail)
+router.get('/:id/detail', detail)
+router.get('/:id/detail-stock-adjustment-result', detailSAResult)
 
 router.post('/', storeRequest, store)
 
