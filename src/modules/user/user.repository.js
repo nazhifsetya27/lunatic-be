@@ -16,6 +16,12 @@ exports.collections = async (req, res) => {
 
   const query = {
     where,
+    include: [
+      {
+        association: 'unit',
+        attributes: ['id', 'name'],
+      },
+    ],
     limit: page_size,
     offset: (page - 1) * page_size,
     order: [['created_at', 'DESC']],
@@ -52,6 +58,7 @@ exports.detailGeneral = async (req) => {
     name: user.name,
     email: user.email,
     role: user.role,
+    unit: user.unit?.name ?? '-',
     id: user.id,
   }
 
@@ -60,6 +67,7 @@ exports.detailGeneral = async (req) => {
       Name: user.name,
       Email: user.email,
       Role: user.role,
+      unit: user.unit?.name ?? '-',
     },
     general: {
       'Tanggal dibuat': user.created_at,

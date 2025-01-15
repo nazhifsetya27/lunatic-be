@@ -1,13 +1,31 @@
 const { Request } = require('../../helper')
 const { Models } = require('../../sequelize/models')
 const { detailGeneral, collections } = require('./user.repository')
-
+const { Op } = require('sequelize')
 const { User } = Models
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const data = await collections(req)
-    Request.success(res, { message: 'Success', data })
+    Request.success(res, await collections(req, res))
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.unitList = async (req, res) => {
+  try {
+    const { search } = req.query
+    const where = {}
+    if (search)
+      where[Op.or] = {
+        name: { [Op.iLike]: `%${search}%` },
+      }
+    const data = await Models.Unit.findAll({
+      where,
+      limit: 100,
+      attributes: ['id', 'name'],
+    })
+    Request.success(res, { data })
   } catch (error) {
     Request.error(res, error)
   }
@@ -16,8 +34,6 @@ exports.getAllUsers = async (req, res) => {
 exports.createUser = async (req, res) => {
   try {
     const post = req.body
-
-    console.log(req.user.role, '<<< role')
 
     if (req.user.role !== 'Administrator') {
       throw new Error('Role anda tidak diizinkan')

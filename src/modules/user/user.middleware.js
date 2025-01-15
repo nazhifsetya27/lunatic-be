@@ -38,6 +38,12 @@ exports.findOneData = async (req, res, next) => {
       where: {
         id,
       },
+      include: [
+        {
+          association: 'unit',
+          attributes: ['id', 'name'],
+        },
+      ],
     })
 
     req.findData = data
@@ -53,6 +59,7 @@ exports.storeRequest = [
   check('name').notEmpty().bail().isString(),
   check('password').notEmpty().bail().isString(),
   check('role').notEmpty().bail().isString(),
+  check('unit_id').notEmpty().bail().isString(),
   validateRequest,
   removeUndefinedRequest,
 ]
@@ -73,6 +80,7 @@ exports.updateRequest = [
       return true
     }),
   check('role').notEmpty().bail().isString(),
+  check('unit_id').notEmpty().bail().isString().isUUID(),
   validateRequest,
   removeUndefinedRequest,
 ]
