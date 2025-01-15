@@ -5,19 +5,33 @@ const { saveImage } = require('../../helper/file')
 
 const { sequelize } = Models.StockAdjustmentInventory
 
-const { StockAdjustmentInventory, Asset } = Models
+const { StockAdjustment, StockAdjustmentInventory, Asset, Approval } = Models
 
 exports.collections = async (req) => {
-  const { page = 1, page_size = 10, search, archive, filter } = req.query
+  const { page = 1, page_size = 10, search, archive, filter, type } = req.query
   const { stock_adjustment_id } = req.params
 
   if (!stock_adjustment_id) throw 'Stock adjustment id not found!'
-
   const numberPage = Number(page)
 
   const where = {
     stock_adjustment_id,
     [Op.and]: [],
+  }
+
+  switch (type) {
+    case 'furniture':
+      where[Op.and].push({ '$asset.category$': 'Furniture' })
+      break
+    case 'elektronik':
+      where[Op.and].push({ '$asset.category$': 'Elektronik' })
+      break
+    case 'umum':
+      where[Op.and].push({ '$asset.category$': 'Umum' })
+      break
+
+    default:
+      break
   }
 
   if (filter)
@@ -155,4 +169,80 @@ exports.adjustData = async (req) => {
   })
 
   return { data }
+}
+
+exports.submitAdjustment = async (req) => {
+  // ubah status stock adjustment jadi waiting for approval
+  // masukkan data stock adjustment kedalam table approval
+  const data = await sequelize.transaction(async (transaction) => {
+    const { current_condition_id } = req.body
+    const { stock_adjustment_id } = req.params
+
+    // cek apakah stock adjustment inventory sudah ada yang diedit
+    const stock_adjustment_inventory = await StockAdjustmentInventory.findAll({
+      where: { stock_adjustment_id },
+    })
+    if (stock_adjustment_inventory.length < 1)
+      throw 'please create adjustment first!'
+
+    await Promise.all(
+      stock_adjustment_inventory.map(async (val) => {
+        // hilangkan flag is_being_adjusted pada asset
+        const asset = await Asset.findOne({
+          where: { id: val.asset_id },
+        })
+        await asset.update({ is_being_adjusted: false })
+
+        if (val.current_condition_id === null)
+          throw 'complete all adjustment first!'
+        return val
+      })
+    )
+
+    // ubah status stock adjustment jadi waiting for approval
+    const stockAdjustment = await StockAdjustment.findOne({
+      where: { id: stock_adjustment_id },
+    })
+    if (!stockAdjustment) throw 'Stock Adjustment not found'
+    stockAdjustment.update(
+      {
+        status: 'Waiting for approval',
+      },
+      { req, transaction }
+    )
+
+    // masukkan data stock adjustment kedalam table approval
+    const approval = await Approval.create(
+      {
+        stock_adjustment_id: stockAdjustment.id,
+        status: 'Waiting for approval',
+        requester_id: stockAdjustment.created_by_id,
+        approver_id: null,
+        description: null,
+      },
+      { req, transaction }
+    )
+
+    return approval
+  })
+
+  return { data }
+}
+
+exports.removeData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const { stock_adjustment_inventory_id } = req.params
+
+    const stockAdjustmentInventory =
+      await Models.StockAdjustmentInventory.findOne({
+        where: { id: stock_adjustment_inventory_id },
+        paranoid: false,
+        transaction,
+      })
+
+    if (!stockAdjustmentInventory)
+      throw new Error('Stock adjustment inventory not found')
+
+    await stockAdjustmentInventory.destroy({ req, transaction, force: true })
+  })
 }

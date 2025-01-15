@@ -16,6 +16,7 @@ const StockAdjustment = sequelizeDB.define(
     },
     status: {
       type: Sequelize.STRING(50),
+      comment: ['On progress, Waiting for approval, Approved, Rejected'],
     },
     created_by_id: {
       type: Sequelize.STRING(36),
