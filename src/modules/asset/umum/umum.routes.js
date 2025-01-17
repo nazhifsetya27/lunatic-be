@@ -7,6 +7,7 @@ const {
   detail,
   show,
   update,
+  printCode,
 } = require('./umum.controller')
 const { storeRequest, updateRequest } = require('./umum.middleware')
 
@@ -15,6 +16,7 @@ const router = express.Router()
 router.get('/', index)
 router.get('/:id', show)
 router.get('/:id/detail', detail)
+router.get('/:id/print', printCode)
 
 router.post('/', storeRequest, store)
 

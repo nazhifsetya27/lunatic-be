@@ -1,5 +1,8 @@
 require('dotenv').config()
 
+const isSSLRequired =
+  process.env.DB_HOST === 'ep-bitter-rice-a1z6xypc.ap-southeast-1.aws.neon.tech'
+
 module.exports = {
   development: {
     username: process.env.DB_USER,
@@ -14,6 +17,14 @@ module.exports = {
       acquire: 30000,
       idle: 5000,
     },
+    ...(isSSLRequired && {
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false, // Skip certificate validation (optional, use with caution)
+        },
+      },
+    }),
   },
   production: {
     username: process.env.DB_USER,
@@ -28,5 +39,13 @@ module.exports = {
       acquire: 30000,
       idle: 5000,
     },
+    ...(isSSLRequired && {
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false, // Skip certificate validation (optional, use with caution)
+        },
+      },
+    }),
   },
 }

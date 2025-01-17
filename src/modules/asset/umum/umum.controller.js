@@ -8,6 +8,7 @@ const {
   detailData,
   showData,
   updateData,
+  printData,
 } = require('./umum.repository')
 
 exports.index = async (req, res) => {
@@ -65,6 +66,14 @@ exports.update = async (req, res) => {
   try {
     await updateData(req)
     Request.success(res, { message: 'Data successfully updated' })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.printCode = async (req, res) => {
+  try {
+    Request.success(res, await printData(req))
   } catch (error) {
     Request.error(res, error)
   }
