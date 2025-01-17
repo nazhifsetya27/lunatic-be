@@ -17,7 +17,7 @@ const router = Router()
 
 router.post('/', loginValidator, login)
 
-router.use(auth)
+// router.use(auth)
 router.get('/', getAllUser)
 router.patch('/change-password', changePasswordValidator, update)
 

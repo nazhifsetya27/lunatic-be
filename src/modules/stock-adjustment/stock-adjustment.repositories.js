@@ -1,10 +1,11 @@
 const { Op } = require('sequelize')
+const moment = require('moment')
 const { Models } = require('../../sequelize/models')
 const { Query } = require('../../helper')
 
 const { sequelize } = Models.StockAdjustment
 
-const { StockAdjustment, StockAdjustmentInventory } = Models
+const { StockAdjustment, StockAdjustmentInventory, Asset } = Models
 
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter, type } = req.query
@@ -16,7 +17,13 @@ exports.collections = async (req) => {
     where[Op.and].push(Query.parseFilter(filter, Models.StockAdjustment))
 
   if (search)
-    where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
+    where[Op.and].push({
+      [Op.or]: [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { status: { [Op.iLike]: `%${search}%` } },
+        { '$created_by.name$': { [Op.iLike]: `%${search}%` } },
+      ],
+    })
 
   const query = {
     where,
@@ -83,6 +90,53 @@ exports.storeData = async (req) => {
       { req, transaction }
     )
 
+    return stock_adjustment
+  })
+
+  return { data }
+}
+
+exports.storeFromScanData = async (req) => {
+  const data = await sequelize.transaction(async (transaction) => {
+    const { user } = req
+    const { adjustedAsset } = req
+    const created_by_id = user.id
+
+    const name = `${user?.name}/${moment()
+      .locale('id')
+      .format('DD MMMM YYYY • HH:mm')}/${adjustedAsset?.name}`
+
+    const stock_adjustment = await StockAdjustment.create(
+      {
+        name,
+        status: 'On progress',
+        created_by_id,
+      },
+      { req, transaction }
+    )
+    //
+    if (adjustedAsset.is_being_adjusted) throw 'can`t adjust this asset'
+
+    // auto create SA inventory
+    await StockAdjustmentInventory.create(
+      {
+        stock_adjustment_id: stock_adjustment?.id,
+        asset_id: adjustedAsset?.id,
+        previous_condition_id: adjustedAsset?.condition?.id,
+        current_condition_id: null,
+      },
+      { req, transaction }
+    )
+
+    // update asset
+    await Asset.update(
+      { is_being_adjusted: true },
+      {
+        where: { id: adjustedAsset?.id },
+        transaction,
+      }
+    )
+    stock_adjustment.dataValues.category = adjustedAsset?.category
     return stock_adjustment
   })
 

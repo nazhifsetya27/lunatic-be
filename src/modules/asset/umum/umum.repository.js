@@ -279,3 +279,63 @@ exports.restoreData = async (req) => {
     await data.restore({ req, transaction })
   })
 }
+
+exports.printData = async (req) => {
+  const data = await sequelize.transaction(async (transaction) => {
+    const { id } = req.params
+
+    const asset = await Models.Asset.findOne({
+      where: { id },
+      paranoid: false,
+      include: [
+        {
+          association: 'storage',
+          include: [
+            {
+              paranoid: false,
+              association: 'unit',
+              attributes: ['id', 'name', 'kode'],
+            },
+            {
+              paranoid: false,
+              association: 'building',
+              attributes: ['id', 'name', 'kode'],
+            },
+            {
+              paranoid: false,
+              association: 'storage_floor',
+              attributes: ['id', 'name', 'kode'],
+            },
+            {
+              paranoid: false,
+              association: 'storage_room',
+              attributes: ['id', 'name', 'kode'],
+            },
+          ],
+        },
+        {
+          paranoid: false,
+          association: 'condition',
+          attributes: ['id', 'name'],
+        },
+      ],
+      transaction,
+    })
+    if (!asset) throw 'Data not found'
+
+    const printCode = [
+      asset?.kode,
+      asset?.storage?.unit?.kode,
+      asset?.storage?.storage_floor?.kode,
+      asset?.storage?.storage_room?.kode,
+      asset?.storage?.unit?.name?.toUpperCase().replace(/\s+/g, ''), // Convert to uppercase and remove spaces
+      'EXCOMP',
+      '2025',
+    ]
+      .filter(Boolean)
+      .join('/')
+
+    return { printCode, assetname: asset?.name, assetId: asset?.id }
+  })
+  return { data }
+}

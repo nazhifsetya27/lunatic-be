@@ -341,7 +341,7 @@ exports.printData = async (req) => {
       .filter(Boolean)
       .join('/')
 
-    return { printCode, assetname: asset?.name }
+    return { printCode, assetname: asset?.name, assetId: asset?.id }
   })
   return { data }
 }

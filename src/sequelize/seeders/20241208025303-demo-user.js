@@ -28,16 +28,6 @@ const users = [
     created_at: new Date(),
     updated_at: new Date(),
   },
-  // deleted later
-  {
-    id: '0c63fcf7-f312-414e-817e-bbb7bc2720be',
-    name: 'nazhif',
-    email: 'nazhif@gmail.com',
-    password: bcrypt.hashSync('nazhif'),
-    role: 'Administrator',
-    created_at: new Date(),
-    updated_at: new Date(),
-  },
 ]
 
 /** @type {import('sequelize-cli').Migration} */

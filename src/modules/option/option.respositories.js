@@ -146,15 +146,44 @@ exports.conditionList = async (req, res) => {
 
 exports.assetList = async (req, res) => {
   try {
-    const { search } = req.query
-    const where = { [Op.and]: [{ is_being_adjusted: false }] }
+    const { search, isStockAdjustment } = req.query
+    const where = { is_being_adjusted: false }
 
-    if (search)
-      where[Op.or] = {
-        name: {
-          [Op.iLike]: `%${search}%`,
+    if (search) {
+      // If not a stock adjustment search
+      // if (!isStockAdjustment) {
+      where[Op.or] = [
+        {
+          name: {
+            [Op.iLike]: `%${search}%`, // Search by name
+          },
         },
-      }
+      ]
+      // }
+
+      // if (isStockAdjustment) {
+      //   where[Op.and] = where[Op.and] || []
+      //   where[Op.and].push({
+      //     [Op.or]: [
+      //       {
+      //         name: {
+      //           [Op.iLike]: `%${search}%`, // Search by category
+      //         },
+      //       },
+      //       {
+      //         category: {
+      //           [Op.iLike]: `%${search}%`, // Search by category
+      //         },
+      //       },
+      //       {
+      //         kode: {
+      //           [Op.iLike]: `%${search}%`, // Search by kode
+      //         },
+      //       },
+      //     ],
+      //   })
+      // }
+    }
 
     Request.success(res, {
       data: await Asset.findAll({

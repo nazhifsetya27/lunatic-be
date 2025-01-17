@@ -1,5 +1,8 @@
 const Sequelize = require('sequelize')
 
+const isSSLRequired =
+  process.env.DB_HOST === 'ep-bitter-rice-a1z6xypc.ap-southeast-1.aws.neon.tech'
+
 exports.Sequelize = Sequelize
 exports.sequelizeDB = new Sequelize.Sequelize(
   process.env.DB_DATABASE,
@@ -10,12 +13,16 @@ exports.sequelizeDB = new Sequelize.Sequelize(
     dialect: process.env.DB_DIALECT,
     port: process.env.DB_PORT,
     operatorAliases: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false, // Skip certificate validation (optional, use with caution)
+    ...(isSSLRequired && {
+      dialectOptions: {
+        ssl: {
+          require:
+            process.env.DB_HOST ===
+            'ep-bitter-rice-a1z6xypc.ap-southeast-1.aws.neon.tech',
+          rejectUnauthorized: false, // Skip certificate validation (optional, use with caution)
+        },
       },
-    },
+    }),
     pool: {
       max: 5,
       min: 0,
