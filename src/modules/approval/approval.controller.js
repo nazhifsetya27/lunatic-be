@@ -6,8 +6,7 @@ const { Approval } = Models
 
 exports.getAllApproval = async (req, res) => {
   try {
-    const data = await collections(req)
-    Request.success(res, { message: 'Success', data })
+    Request.success(res, await collections(req, res))
   } catch (error) {
     Request.error(res, error)
   }

@@ -2,12 +2,32 @@ const { Op } = require('sequelize')
 const { Models } = require('../../sequelize/models')
 
 const { Approval } = Models
+const { sequelize } = Models.Approval
 
 exports.collections = async (req, res) => {
-  const { page = 1, page_size = 10, archive, search } = req.query
+  const {
+    page = 1,
+    page_size = 10,
+    archive,
+    search,
+    status = 'view all',
+  } = req.query
   const numberPage = Number(page)
 
-  const where = { [Op.and]: [] }
+  const where = {}
+
+  if (search) {
+    where[Op.and].push({
+      [Op.or]: [
+        sequelize.literal(`EXISTS (
+            SELECT *
+            FROM "stock_adjustments" AS "sa"
+            WHERE "approvals"."stock_adjustment_id" = "sa"."id"
+            AND "sa"."name" ILIKE '%${search}%'
+          )`),
+      ],
+    })
+  }
 
   const query = {
     where,
@@ -17,11 +37,11 @@ exports.collections = async (req, res) => {
       },
       {
         association: 'requester',
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name', 'role', 'photo_url'],
       },
       {
         association: 'approver',
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name', 'role', 'photo_url'],
       },
     ],
     limit: page_size,
@@ -29,9 +49,11 @@ exports.collections = async (req, res) => {
     order: [['created_at', 'DESC']],
   }
 
-  if (archive === '1') {
-    where.deleted_at = { [Op.ne]: null }
+  if (status === 'approved') {
+    where.status = 'Approved'
     query.paranoid = false
+  } else if (status === 'pending approval') {
+    where.status = 'Pending approval'
   }
 
   const data = await Approval.findAndCountAll(query)
