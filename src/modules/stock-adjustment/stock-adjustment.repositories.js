@@ -32,7 +32,7 @@ exports.collections = async (req) => {
       {
         paranoid: false,
         association: 'created_by',
-        attributes: ['id', 'name', 'role'],
+        attributes: ['id', 'name', 'role', 'photo_url'],
       },
     ],
     offset: (page - 1) * page_size,
@@ -48,6 +48,8 @@ exports.collections = async (req) => {
 
   if (type === 'on_progress') {
     where.status = 'On progress'
+  } else if (type === 'waiting_for_approval') {
+    where.status = 'Waiting for approval'
   }
 
   const data = await StockAdjustment.findAndCountAll(query)
