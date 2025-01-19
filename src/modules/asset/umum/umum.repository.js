@@ -9,9 +9,12 @@ const { Asset, StorageManagement } = Models
 
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter } = req.query
+  const { user } = req
   const numberPage = Number(page)
 
-  const where = { [Op.and]: [{ category: 'Umum' }] }
+  const where = {
+    [Op.and]: [{ category: 'Umum' }, { '$storage.unit.id$': user?.unit?.id }],
+  }
 
   if (filter) where[Op.and].push(Query.parseFilter(filter, Models.Asset))
 

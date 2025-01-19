@@ -23,7 +23,14 @@ exports.auth = async (req, res, next) => {
 
     const user = await User.findOne({
       where: { id: verify.id },
-      attributes: ['id', 'name', 'email', 'role', 'photo_url'],
+      attributes: ['id', 'name', 'email', 'role', 'photo_url', 'unit_id'],
+      include: [
+        {
+          paranoid: false,
+          association: 'unit',
+          attributes: ['id', 'name'],
+        },
+      ],
     })
 
     if (!user) throw 'user not found'

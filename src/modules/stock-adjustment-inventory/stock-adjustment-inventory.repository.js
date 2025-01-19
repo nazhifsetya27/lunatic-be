@@ -258,6 +258,10 @@ exports.removeData = async (req) => {
     if (!stockAdjustmentInventory)
       throw new Error('Stock adjustment inventory not found')
 
+    // set is_being_adjusted on asset to false
+    const asset = await Asset.findByPk(stockAdjustmentInventory.asset_id)
+    await asset.update({ is_being_adjusted: false })
+
     await stockAdjustmentInventory.destroy({ req, transaction, force: true })
   })
 }
