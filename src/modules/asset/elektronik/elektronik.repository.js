@@ -489,6 +489,9 @@ exports.example = async (req, res) => {
 
 exports.collectionExport = async (req, res) => {
   const data = await Models.Asset.findAll({
+    where: {
+      category: req.query.category,
+    },
     include: [
       {
         paranoid: false,
@@ -558,7 +561,7 @@ exports.collectionExport = async (req, res) => {
   worksheet2.cell(3, 1).string('Category')
   worksheet2.cell(3, 2).string(req.query.category)
 
-  workbook.write('export-asset.xlsx', res)
+  workbook.write(`export-${req.query.category}.xlsx`, res)
 }
 
 exports.printData = async (req) => {
