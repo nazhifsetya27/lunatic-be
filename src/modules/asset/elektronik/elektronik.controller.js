@@ -11,6 +11,7 @@ const {
   updateData,
   example,
   printData,
+  collectionExport,
 } = require('./elektronik.repository')
 
 exports.index = async (req, res) => {
@@ -246,6 +247,14 @@ exports.importData = async (req, res) => {
 exports.example = async (req, res) => {
   try {
     await example(req, res)
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.exportData = async (req, res) => {
+  try {
+    await collectionExport(req, res)
   } catch (error) {
     Request.error(res, error)
   }

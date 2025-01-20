@@ -10,6 +10,7 @@ const {
   importData,
   example,
   printCode,
+  exportData,
 } = require('./elektronik.controller')
 const {
   storeRequest,
@@ -21,6 +22,7 @@ const router = express.Router()
 
 router.get('/', index)
 router.get('/example', example)
+router.get('/export', exportData)
 router.get('/:id', show)
 router.get('/:id/detail', detail)
 router.get('/:id/print', printCode)
