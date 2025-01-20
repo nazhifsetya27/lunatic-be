@@ -1,7 +1,7 @@
 const { Op } = require('sequelize')
 const { Models } = require('../../sequelize/models')
 
-const { Approval } = Models
+const { Approval, Asset } = Models
 const { sequelize } = Models.Approval
 
 exports.collections = async (req, res) => {
@@ -52,8 +52,8 @@ exports.collections = async (req, res) => {
   if (status === 'approved') {
     where.status = 'Approved'
     query.paranoid = false
-  } else if (status === 'pending approval') {
-    where.status = 'Pending approval'
+  } else if (status === 'Waiting for approval') {
+    where.status = 'Waiting for approval'
   }
 
   const data = await Approval.findAndCountAll(query)
@@ -72,4 +72,144 @@ exports.collections = async (req, res) => {
     },
     // filter: [],
   }
+}
+
+exports.detailApproval = async (req, res) => {
+  const { id } = req.params
+
+  const detailData = await Approval.findOne({
+    where: {
+      id,
+    },
+    paranoid: false,
+    include: [
+      {
+        association: 'stock_adjustment',
+      },
+      {
+        association: 'requester',
+        attributes: ['id', 'name', 'role', 'photo_url'],
+      },
+      {
+        association: 'approver',
+        attributes: ['id', 'name', 'role', 'photo_url'],
+      },
+    ],
+  })
+
+  if (!detailData) throw 'detail data not found!'
+
+  const data = {
+    general_information: {
+      'Stock adjustment name': detailData.stock_adjustment.name,
+      description: detailData.description,
+      status: detailData.status,
+      Requester: detailData.requester?.name,
+      Approver: detailData.approver?.name,
+      'Created at': detailData.created_at,
+      'Updated at': detailData.updated_at,
+    },
+  }
+  return { data }
+}
+
+exports.approveData = async (req) => {
+  const data = await sequelize.transaction(async (transaction) => {
+    const { id } = req.params
+    const { status, description } = req.body
+
+    if (req.user.role !== 'Administrator' || req.user.role !== 'Approver') {
+      throw 'Unauthorized'
+    }
+
+    const approval = await Approval.findOne({
+      where: {
+        id,
+      },
+      paranoid: false,
+      include: [
+        {
+          association: 'stock_adjustment',
+          include: [
+            {
+              association: 'stock_adjustment',
+            },
+          ],
+        },
+        {
+          association: 'requester',
+          attributes: ['id', 'name', 'role', 'photo_url'],
+        },
+        {
+          association: 'approver',
+          attributes: ['id', 'name', 'role', 'photo_url'],
+        },
+      ],
+      transaction,
+    })
+
+    if (status === 'Rejected') {
+      await approval.update(
+        {
+          status: 'Rejected',
+          description,
+          approver_id: req.user.id,
+        },
+        { transaction }
+      )
+
+      if (approval.stock_adjustment) {
+        await approval.stock_adjustment.update(
+          { status: 'Rejected' },
+          { transaction }
+        )
+      }
+
+      return { message: 'Approval rejected and stock adjustment updated' }
+    }
+
+    if (status === 'Approved') {
+      const stockAdjustmentInventory =
+        approval.stock_adjustment?.stock_adjustment
+
+      if (!stockAdjustmentInventory || stockAdjustmentInventory.length === 0) {
+        throw 'No stock adjustment inventory found'
+      }
+
+      const updates = stockAdjustmentInventory.map((item) => ({
+        asset_id: item.asset_id,
+        condition_id: item.current_condition_id,
+      }))
+
+      for (const update of updates) {
+        await Asset.update(
+          { condition_id: update.condition_id },
+          {
+            where: { id: update.asset_id },
+            transaction,
+          }
+        )
+      }
+
+      await approval.update(
+        {
+          status: 'Approved',
+          description,
+          approver_id: req.user.id,
+        },
+        { transaction }
+      )
+
+      if (approval.stock_adjustment) {
+        await approval.stock_adjustment.update(
+          { status: 'Approved' },
+          { transaction }
+        )
+      }
+
+      return { message: 'Assets updated and approval approved' }
+    }
+  })
+
+  return data
 }
