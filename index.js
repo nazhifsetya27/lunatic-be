@@ -1,9 +1,11 @@
 require('dotenv').config()
 const multer = require('multer')
+const { rateLimit } = require('express-rate-limit')
 
 const cors = require('cors')
 const express = require('express')
 const bodyParser = require('body-parser')
+const { Request } = require('./src/helper')
 
 const app = express()
 
@@ -22,6 +24,21 @@ app.use(
 )
 app.options('*', cors())
 
+// coming soon
+
+// const limiter = rateLimit({
+//   windowMs: 1 * 60 * 1000, // 15 minutes
+//   limit: 60, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+//   standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+//   keyGenerator: (req, res) => req.header('authorization'),
+//   skip: (req, res) => req.header('skip-key') == '95628431235',
+//   handler: (req, res, next, options) => {
+//     Request.error(res, 'You can only make 60 requests every minutes.')
+//   },
+// })
+
+// app.use(limiter)
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
