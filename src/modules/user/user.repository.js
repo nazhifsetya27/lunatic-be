@@ -9,6 +9,10 @@ exports.collections = async (req, res) => {
 
   const where = { [Op.and]: [] }
 
+  if (req.user?.unit_id) {
+    where[Op.and].push({ unit_id: req.user.unit_id })
+  }
+
   if (search)
     where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
 
