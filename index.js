@@ -79,6 +79,7 @@ app.use(
 )
 
 app.use('/approval', require('./src/modules/approval/approval.routes'))
+app.use('/dashboard', require('./src/modules/dashboard/dashboard.routes'))
 
 app.listen(PORT, () => {
   console.log(`server running on PORT: ${PORT}`)
