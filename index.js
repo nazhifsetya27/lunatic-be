@@ -5,16 +5,19 @@ const { rateLimit } = require('express-rate-limit')
 const cors = require('cors')
 const express = require('express')
 const bodyParser = require('body-parser')
-const { Request } = require('./src/helper')
 
 const app = express()
+const server = require('http').createServer(app)
 
 const PORT = process.env.PORT || 4000
 
+const UPLOAD_TEMP_PATH = 'public/uploads/temp/'
 const upload = multer({
-  limits: { fileSize: 50 * 1024 * 1024 }, // Set file size limit if necessary
-  storage: multer.memoryStorage(), // Store files in memory for testing
+  // limits: { fileSize: 50 * 1024 * 1024 }, // Set file size limit if necessary
+  // storage: multer.memoryStorage(), // Store files in memory for testing
+  dest: UPLOAD_TEMP_PATH,
 })
+exports.UPLOAD_TEMP_PATH = UPLOAD_TEMP_PATH
 
 app.use(
   cors({
@@ -24,8 +27,7 @@ app.use(
 )
 app.options('*', cors())
 
-// coming soon
-
+/*  coming soon */ 
 // const limiter = rateLimit({
 //   windowMs: 1 * 60 * 1000, // 15 minutes
 //   limit: 60, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
@@ -39,9 +41,10 @@ app.options('*', cors())
 // })
 
 // app.use(limiter)
+
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+// app.use(express.urlencoded({ extended: true }))
 app.use(bodyParser.json({ limit: '50mb', extended: true }))
 app.use(
   bodyParser.urlencoded({

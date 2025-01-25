@@ -50,6 +50,10 @@ exports.collections = async (req) => {
     where.status = 'On progress'
   } else if (type === 'waiting_for_approval') {
     where.status = 'Waiting for approval'
+  } else if (type === 'rejected') {
+    where.status = 'Rejected'
+  } else if (type === 'approved') {
+    where.status = 'Approved'
   }
 
   const data = await StockAdjustment.findAndCountAll(query)
