@@ -1,50 +1,23 @@
 require('dotenv').config()
 const multer = require('multer')
-const { rateLimit } = require('express-rate-limit')
-
 const cors = require('cors')
 const express = require('express')
 const bodyParser = require('body-parser')
+const { Server } = require('socket.io')
+const http = require('http')
 
 const app = express()
-const server = require('http').createServer(app)
-
-const PORT = process.env.PORT || 4000
-
-const UPLOAD_TEMP_PATH = 'public/uploads/temp/'
-const upload = multer({
-  // limits: { fileSize: 50 * 1024 * 1024 }, // Set file size limit if necessary
-  // storage: multer.memoryStorage(), // Store files in memory for testing
-  dest: UPLOAD_TEMP_PATH,
-})
-exports.UPLOAD_TEMP_PATH = UPLOAD_TEMP_PATH
-
-app.use(
-  cors({
+const server = http.createServer(app) // Create HTTP server for Express and Socket.IO
+global.io = new Server(server, {
+  cors: {
     origin: true,
     credentials: true,
-  })
-)
-app.options('*', cors())
+  },
+})
 
-/*  coming soon */ 
-// const limiter = rateLimit({
-//   windowMs: 1 * 60 * 1000, // 15 minutes
-//   limit: 60, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-//   standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-//   keyGenerator: (req, res) => req.header('authorization'),
-//   skip: (req, res) => req.header('skip-key') == '95628431235',
-//   handler: (req, res, next, options) => {
-//     Request.error(res, 'You can only make 60 requests every minutes.')
-//   },
-// })
-
-// app.use(limiter)
-
-// parse requests of content-type - application/x-www-form-urlencoded
+// Middleware
+app.use(cors({ origin: true, credentials: true }))
 app.use(express.json())
-// app.use(express.urlencoded({ extended: true }))
 app.use(bodyParser.json({ limit: '50mb', extended: true }))
 app.use(
   bodyParser.urlencoded({
@@ -54,15 +27,28 @@ app.use(
   })
 )
 app.use(bodyParser.text({ limit: '200mb' }))
-app.use(upload.any()) // This will handle all form-data file uploads
-
 app.use('/public', express.static('public'))
 
+// File upload handling
+const UPLOAD_TEMP_PATH = 'public/uploads/temp/'
+const upload = multer({ dest: UPLOAD_TEMP_PATH })
+exports.UPLOAD_TEMP_PATH = UPLOAD_TEMP_PATH
+app.use(upload.any())
+
+// Debug Middleware
+app.use((req, res, next) => {
+  console.log(`HTTP Request: ${req.method} ${req.url}`)
+  if (req.path === '/socket.io') {
+    console.log('Request hitting /socket.io')
+  }
+  next()
+})
+
+// Routes
 app.get('/', (req, res) => {
   res.json('service lunatic BE is running')
 })
 
-// NOTE : Add your routes here
 app.use('/auth', require('./src/modules/auth/auth.routes'))
 app.use(
   '/storage-management',
@@ -84,6 +70,17 @@ app.use(
 app.use('/approval', require('./src/modules/approval/approval.routes'))
 app.use('/dashboard', require('./src/modules/dashboard/dashboard.routes'))
 
-app.listen(PORT, () => {
-  console.log(`server running on PORT: ${PORT}`)
+// Socket.IO Connection
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id)
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id)
+  })
+})
+
+// Start the server
+const PORT = process.env.PORT || 4000
+server.listen(PORT, () => {
+  console.log(`Server running on PORT: ${PORT}`)
 })

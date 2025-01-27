@@ -4,6 +4,8 @@
 const { Op } = require('sequelize')
 const moment = require('moment')
 const { Workbook } = require('excel4node')
+const uuid = require('uuid')
+const async = require('async')
 const { Models } = require('../../../sequelize/models')
 const { Query } = require('../../../helper')
 
@@ -130,7 +132,7 @@ exports.showData = async (req) => {
       },
     ],
   })
-  if (!data) throw 'Furniture not found'
+  if (!data) throw 'Elektronik not found'
 
   return { data }
 }
@@ -290,201 +292,312 @@ exports.updateData = async (req) => {
   })
 }
 
-exports.example = async (req, res) => {
-  const workbook = new Workbook()
-  const worksheet = workbook.addWorksheet('Asset')
+exports.exampleData = async (req, res) => {
+  const { user } = req
 
-  const asset_header = [
-    'Name', // A
-    'Kode', // B
-    'Category', // C
-    'Quantity', // D
-    'Condition', // E
-    'Unit', // F
-    'Gedung', // G
-    'Lantai', // H
-    'Ruangan', // I
-  ]
-
-  asset_header.map((key, index) => {
-    worksheet.cell(1, index + 1).string(key)
+  /* GET ALL DATA */
+  const conditions = await Models.Condition.findAll({
+    attributes: ['id', 'name', 'description'],
+  })
+  const unitUser = await Models.Unit.findByPk(user?.unit_id, {
+    attributes: ['id', 'name'],
   })
 
-  var style = workbook.createStyle({
-    numberFormat: '@',
+  // Building
+  const building = await Models.StorageManagement.findAll({
+    where: {
+      unit_id: unitUser?.id,
+    },
+    distinct: true,
+    include: [{ paranoid: false, association: 'building', duplicating: true }],
   })
-  const totalRows = 15000
-  const totalCols = asset_header.length
+  const distinctBuilding = building.filter(
+    (item, index, self) =>
+      self.findIndex((t) => t.building_id === item.building_id) === index
+  )
 
-  for (let row = 2; row <= totalRows; row++) {
-    for (let col = 1; col <= totalCols; col++) {
-      worksheet.cell(row, col).style(style)
-    }
+  // Floor
+  const floor = await Models.StorageManagement.findAll({
+    where: {
+      unit_id: unitUser?.id,
+      floor_id: { [Op.ne]: null },
+    },
+    distinct: true,
+    include: [
+      { paranoid: false, association: 'storage_floor', duplicating: false },
+    ],
+  })
+  const distinctFloor = floor.filter(
+    (item, index, self) =>
+      self.findIndex((t) => t.floor_id === item.floor_id) === index
+  )
+
+  // Room
+  const room = await Models.StorageManagement.findAll({
+    where: {
+      unit_id: unitUser?.id,
+      room_id: { [Op.ne]: null },
+    },
+    distinct: true,
+    include: [
+      { paranoid: false, association: 'storage_room', duplicating: false },
+    ],
+  })
+  const distinctRoom = room.filter(
+    (item, index, self) =>
+      self.findIndex((t) => t.room_id === item.room_id) === index
+  )
+
+  // Define all worksheets
+  const wb = new Workbook()
+  const WsElectronics = wb.addWorksheet('Electronics')
+  const WsConditions = wb.addWorksheet('Conditions', {
+    sheetProtection: { selectLockedCells: true },
+  })
+  const WsBuilding = wb.addWorksheet('Building', {
+    sheetProtection: { selectLockedCells: true },
+  })
+  const WsRoom = wb.addWorksheet('Room', {
+    sheetProtection: { selectLockedCells: true },
+  })
+  const WsFloor = wb.addWorksheet('Floor', {
+    sheetProtection: { selectLockedCells: true },
+  })
+  const wsRules = wb.addWorksheet('Rules', {
+    sheetProtection: { selectLockedCells: true },
+  })
+
+  // Define all validations & rules
+  const rules = []
+  const validations = {
+    Name: () => {
+      const column = 'A'
+      rules.push({ column: 'Name', req: 'Required', format: 'Text' })
+
+      WsElectronics.addDataValidation({
+        sqref: `${column}1:${column}1`,
+        allowBlank: false,
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        type: 'list',
+        formulas: ['Name'],
+      })
+      WsElectronics.addDataValidation({
+        sqref: `${column}:${column}`,
+        allowBlank: false,
+        error: 'Name already exists',
+        type: 'custom',
+        formulas: [`=COUNTIF($${column}:$${column}, INDIRECT("RC", 0)) = 1`],
+      })
+    },
+    Code: () => {
+      const column = 'B'
+      rules.push({ column: 'Code', req: 'Required', format: 'Text' })
+
+      WsElectronics.addDataValidation({
+        sqref: `${column}1:${column}1`,
+        allowBlank: false,
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        type: 'list',
+        formulas: ['Code'],
+      })
+      WsElectronics.addDataValidation({
+        sqref: `${column}:${column}`,
+        allowBlank: false,
+        error: 'Code already exists',
+        type: 'custom',
+        formulas: [`=COUNTIF($${column}:$${column}, INDIRECT("RC", 0)) = 1`],
+      })
+    },
+    Conditions: () => {
+      const column = 'C'
+      rules.push({
+        column: 'Conditions',
+        req: 'Required',
+        format: 'Text',
+      })
+
+      WsElectronics.addDataValidation({
+        sqref: `${column}1:${column}1`,
+        allowBlank: false,
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        type: 'list',
+        formulas: ['Conditions'],
+      })
+      WsElectronics.addDataValidation({
+        sqref: `${column}:${column}`,
+        allowBlank: false,
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        type: 'list',
+        formulas: [`=Conditions!$A$2:$A$${conditions.length + 1}`],
+      })
+    },
+    Unit: () => {
+      const column = 'D'
+      rules.push({
+        column: 'Unit',
+        req: 'Required',
+        format: 'Text',
+      })
+
+      WsElectronics.addDataValidation({
+        sqref: `${column}1:${column}1`,
+        allowBlank: false,
+        error: 'Invalid choice was chosen',
+        showDropDown: false,
+        type: 'list',
+        formulas: ['Unit'],
+      })
+      if (unitUser?.name) {
+        WsElectronics.cell(2, 4).string(unitUser.name) // Place default value in row 2, column 4 (D2)
+      }
+    },
+    Building: () => {
+      const column = 'E'
+      rules.push({
+        column: 'Building',
+        req: 'Required',
+        format: 'Text',
+      })
+
+      WsElectronics.addDataValidation({
+        sqref: `${column}1:${column}1`,
+        allowBlank: false,
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        type: 'list',
+        formulas: ['Building'],
+      })
+      WsElectronics.addDataValidation({
+        sqref: `${column}:${column}`,
+        allowBlank: false,
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        type: 'list',
+        formulas: [`=Building!$A$2:$A$${distinctBuilding.length + 1}`],
+      })
+    },
+    Floor: () => {
+      const column = 'F' // Floor column
+      const buildingColumn = 'E' // Building column reference
+
+      rules.push({
+        column: 'Floor',
+        req: 'Required',
+        format: 'Text',
+      })
+
+      // Apply list validation for Floor (dropdown list)
+      WsElectronics.addDataValidation({
+        sqref: `${column}:${column}`, // Apply validation to the Floor column
+        allowBlank: true, // Allow blank if validation fails
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        type: 'list',
+        formulas: [`=Floor!$A$2:$A$${distinctFloor.length + 1}`], // List of distinct floors
+      })
+
+      // Add a custom formula to disable Floor if Building is not filled
+      WsElectronics.addDataValidation({
+        sqref: `${column}:${column}`, // Apply validation to all rows in the Floor column
+        type: 'custom',
+        allowBlank: true, // Let the cell remain empty if validation fails
+        error: 'Fill the Building column first',
+        formulas: [`=LEN(E1)>0`], // Checks if the Building column (column E) in the same row is not empty
+      })
+    },
+    Room: () => {
+      const column = 'G'
+
+      rules.push({
+        column: 'Room',
+        req: 'Required',
+        format: 'Text',
+      })
+
+      // Apply list validation for Floor (dropdown list)
+      WsElectronics.addDataValidation({
+        sqref: `${column}:${column}`, // Apply validation to the Floor column
+        allowBlank: true, // Allow blank if validation fails
+        error: 'Invalid choice was chosen',
+        showDropDown: true,
+        type: 'list',
+        formulas: [`=Room!$A$2:$A$${distinctRoom.length + 1}`], // List of distinct floors
+      })
+
+      // Add a custom formula to disable Floor if Building is not filled
+      WsElectronics.addDataValidation({
+        sqref: `${column}:${column}`, // Apply validation to all rows in the Floor column
+        type: 'custom',
+        allowBlank: true, // Let the cell remain empty if validation fails
+        error: 'Fill the Building column first',
+        formulas: [`=LEN(E1)>0`], // Checks if the Building column (column E) in the same row is not empty
+      })
+    },
   }
 
-  var worksheet2 = workbook.addWorksheet('Category', {
-    sheetProtection: { selectLockedCells: true },
+  // WORKSHEET : Furniture
+  Object.entries(validations).forEach(([key, validation], index) => {
+    WsElectronics.cell(1, index + 1).string(key)
+    validation()
+  })
+  WsElectronics.row(1).freeze()
+
+  // WORKSHEET : Condition
+  const WsConditionsHeader = ['Name', 'Description']
+  WsConditionsHeader.forEach((key, index) => {
+    WsConditions.cell(1, index + 1).string(key)
+  })
+  conditions.forEach((data, index) => {
+    WsConditions.cell(index + 2, 1).string(data.name)
+    WsConditions.cell(index + 2, 2).string(data.description)
   })
 
-  const category_header = ['ID', 'Name']
-  category_header.map((key, index) => {
-    worksheet2.cell(1, index + 1).string(key)
+  // WORKSHEET : building
+  const WsbuildingHeader = ['Name', 'Kode']
+  WsbuildingHeader.forEach((key, index) => {
+    WsBuilding.cell(1, index + 1).string(key)
+  })
+  distinctBuilding.forEach((data, index) => {
+    WsBuilding.cell(index + 2, 1).string(data.building.name)
+    WsBuilding.cell(index + 2, 2).string(data.building.kode)
   })
 
-  const categoryData = [
-    {
-      id: '1',
-      name: 'Elektronik',
-    },
-    {
-      id: '2',
-      name: 'Furniture',
-    },
-    {
-      id: '3',
-      name: 'Umum',
-    },
-  ]
-  categoryData.map((data, index) => {
-    worksheet2.cell(index + 2, 1).string(data.id)
-    worksheet2.cell(index + 2, 2).string(data.name)
+  // WORKSHEET : Floor
+  const WsFloorHeader = ['Name', 'Kode']
+  WsFloorHeader.forEach((key, index) => {
+    WsFloor.cell(1, index + 1).string(key)
+  })
+  distinctFloor.forEach((data, index) => {
+    WsFloor.cell(index + 2, 1).string(data.storage_floor.name)
+    WsFloor.cell(index + 2, 2).string(data.storage_floor.kode)
   })
 
-  worksheet.addDataValidation({
-    type: 'list',
-    error: 'Invalid choice was chosen',
-    showDropDown: true,
-    allowBlank: 1,
-    sqref: 'C2:C1000',
-    formulas: [`=Category!$B$2:$B${parseInt(categoryData.length + 1)}`],
+  // WORKSHEET : Floor
+  const WsRoomHeader = ['Name', 'Kode']
+  WsRoomHeader.forEach((key, index) => {
+    WsRoom.cell(1, index + 1).string(key)
+  })
+  distinctRoom.forEach((data, index) => {
+    WsRoom.cell(index + 2, 1).string(data.storage_room.name)
+    WsRoom.cell(index + 2, 2).string(data.storage_room.kode)
   })
 
-  var worksheet3 = workbook.addWorksheet('Condition', {
-    sheetProtection: { selectLockedCells: true },
+  // WORKSHEET : RULES
+  const wsRulesHeader = ['Column', 'Required/Optional', 'Format']
+  wsRulesHeader.forEach((key, index) => {
+    wsRules.cell(1, index + 1).string(key)
+  })
+  rules.forEach((data, index) => {
+    wsRules.cell(index + 2, 1).string(data.column)
+    wsRules.cell(index + 2, 2).string(data.req)
+    wsRules.cell(index + 2, 3).string(data.format)
   })
 
-  const condition_header = ['ID', 'Name']
-  condition_header.map((key, index) => {
-    worksheet3.cell(1, index + 1).string(key)
-  })
-
-  const condition = await Models.Condition.findAll()
-
-  condition.map((data, index) => {
-    worksheet3.cell(index + 2, 1).string(data.id)
-    worksheet3.cell(index + 2, 2).string(data.name)
-  })
-
-  worksheet.addDataValidation({
-    type: 'list',
-    error: 'Invalid choice was chosen',
-    showDropDown: true,
-    allowBlank: 1,
-    sqref: 'E2:E1000',
-    formulas: [`=Condition!$B$2:$B${parseInt(condition.length + 1)}`],
-  })
-
-  var worksheet4 = workbook.addWorksheet('Unit', {
-    sheetProtection: { selectLockedCells: true },
-  })
-
-  const unit_header = ['ID', 'Name']
-  unit_header.map((key, index) => {
-    worksheet4.cell(1, index + 1).string(key)
-  })
-
-  const unit = await Models.Unit.findAll()
-
-  unit.map((data, index) => {
-    worksheet4.cell(index + 2, 1).string(data.id)
-    worksheet4.cell(index + 2, 2).string(data.name)
-  })
-
-  worksheet.addDataValidation({
-    type: 'list',
-    error: 'Invalid choice was chosen',
-    showDropDown: true,
-    allowBlank: 1,
-    sqref: 'F2:F1000',
-    formulas: [`=Unit!$B$2:$B${parseInt(unit.length + 1)}`],
-  })
-
-  var worksheet5 = workbook.addWorksheet('Gedung', {
-    sheetProtection: { selectLockedCells: true },
-  })
-
-  const gedung_header = ['ID', 'Name']
-  gedung_header.map((key, index) => {
-    worksheet5.cell(1, index + 1).string(key)
-  })
-
-  const gedung = await Models.Building.findAll()
-
-  gedung.map((data, index) => {
-    worksheet5.cell(index + 2, 1).string(data.id)
-    worksheet5.cell(index + 2, 2).string(data.name)
-  })
-
-  worksheet.addDataValidation({
-    type: 'list',
-    error: 'Invalid choice was chosen',
-    showDropDown: true,
-    allowBlank: 1,
-    sqref: 'G2:G1000',
-    formulas: [`=Gedung!$B$2:$B${parseInt(gedung.length + 1)}`],
-  })
-
-  var worksheet6 = workbook.addWorksheet('Lantai', {
-    sheetProtection: { selectLockedCells: true },
-  })
-
-  const lantai_header = ['ID', 'Name']
-  lantai_header.map((key, index) => {
-    worksheet6.cell(1, index + 1).string(key)
-  })
-
-  const lantai = await Models.Floor.findAll()
-
-  lantai.map((data, index) => {
-    worksheet6.cell(index + 2, 1).string(data.id)
-    worksheet6.cell(index + 2, 2).string(data.name)
-  })
-
-  worksheet.addDataValidation({
-    type: 'list',
-    error: 'Invalid choice was chosen',
-    showDropDown: true,
-    allowBlank: 1,
-    sqref: 'H2:H1000',
-    formulas: [`=Lantai!$B$2:$B${parseInt(lantai.length + 1)}`],
-  })
-
-  var worksheet7 = workbook.addWorksheet('Ruangan', {
-    sheetProtection: { selectLockedCells: true },
-  })
-
-  const ruangan_header = ['ID', 'Name']
-  ruangan_header.map((key, index) => {
-    worksheet7.cell(1, index + 1).string(key)
-  })
-
-  const ruangan = await Models.Room.findAll()
-
-  ruangan.map((data, index) => {
-    worksheet7.cell(index + 2, 1).string(data.id)
-    worksheet7.cell(index + 2, 2).string(data.name)
-  })
-
-  worksheet.addDataValidation({
-    type: 'list',
-    error: 'Invalid choice was chosen',
-    showDropDown: true,
-    allowBlank: 1,
-    sqref: 'I2:I1000',
-    formulas: [`=Ruangan!$B$2:$B${parseInt(ruangan.length + 1)}`],
-  })
-
-  workbook.write('example-import-asset.xlsx', res)
+  wb.write('example-import-elektronik.xlsx', res)
 }
 
 exports.collectionExport = async (req, res) => {
@@ -622,4 +735,149 @@ exports.printData = async (req) => {
     return { printCode, assetname: asset?.name, assetId: asset?.id }
   })
   return { data }
+}
+
+exports.importData = async (req) => {
+  const { electronics } = req.body
+  if (!electronics?.length) throw 'Data is empty'
+
+  const socket_name = uuid.v4()
+  async function startImport() {
+    let success = 0
+    const failed = []
+    let lastProgess = null
+    let index = 0
+    await async.eachSeries(electronics, async (value) => {
+      const element = { ...value, errors: [] }
+      const electronic = {}
+
+      try {
+        await sequelize.transaction(async (transaction) => {
+          // Validate and Assign data value
+
+          // ========= Name
+          if (!element.Name) element.errors.push('Name is required')
+          else {
+            electronic.name = element.Name
+          }
+
+          // ========= Code
+          if (!element.Code) element.errors.push('Code is required')
+          else {
+            const existingCode = await Models.Asset.findOne({
+              paranoid: false,
+              where: {
+                kode: element.Code,
+              },
+            })
+            if (existingCode) element.errors.push('Code already exist!')
+            else electronic.kode = element.Code
+          }
+
+          // ========= Condition
+          if (!element.Conditions) element.errors.push('Condition is required')
+          else {
+            const condition = await Models.Condition.findOne({
+              where: { name: element.Conditions },
+            })
+            electronic.condition_id = condition.id
+          }
+
+          // ========= Unit - Building - Floor - Room (asset_management_id)
+          let unit
+          let building
+          let floor
+          let room
+          if (!element.Unit) element.errors.push('Unit is required')
+          else {
+            unit = await Models.Unit.findOne({
+              where: { name: element.Unit },
+            })
+          }
+          if (!element.Building) element.errors.push('Buillding is required')
+          else {
+            building = await Models.Building.findOne({
+              where: { name: element.Building },
+            })
+          }
+          if (!element.Floor) element.errors.push('Floor is required')
+          else {
+            floor = await Models.Floor.findOne({
+              where: { name: element.Floor },
+            })
+          }
+          if (!element.Room) element.errors.push('Room is required')
+          else {
+            room = await Models.Room.findOne({
+              where: { name: element.Room },
+            })
+          }
+          if (
+            element.Unit &&
+            element.Building &&
+            element.Floor &&
+            element.Room
+          ) {
+            const storagemanagement = await Models.StorageManagement.findOne({
+              where: {
+                unit_id: unit.id,
+                building_id: building.id,
+                floor_id: floor.id,
+                room_id: room.id,
+              },
+            })
+
+            if (!storagemanagement) {
+              element.errors.push('Storage management not found!')
+            } else {
+              electronic.storage_management_id = storagemanagement.id
+            }
+          }
+
+          // Create or update Furniture
+          if (!element.errors.length) {
+            const [newElectronic, created] = await Models.Asset.findOrCreate({
+              req,
+              transaction,
+              paranoid: false,
+              defaults: electronic,
+              where: { name: electronic.name, category: 'Elektronik' },
+            })
+
+            if (!created) {
+              await newElectronic.update(electronic, { req, transaction })
+            }
+          }
+        })
+      } catch (error) {
+        console.log('error_catch: ', error)
+        element.errors.push(error?.message ?? 'Something went wrong')
+      }
+
+      // Update progress
+      if (!element.errors.length) success += 1
+      else {
+        console.log('error element', element.error)
+
+        element.errors = element.errors.join(', ')
+        failed.push(element)
+      }
+      const progress = Math.ceil(((index + 1) / electronic.length) * 100)
+      if (lastProgess !== progress) {
+        lastProgess = progress
+        io.emit(`upload-${socket_name}`, { progress })
+      }
+
+      index += 1
+    })
+
+    console.log('Success : ', success)
+    console.log('Failed : ', failed)
+
+    io.emit(`result-${socket_name}`, { result: { success, failed } })
+  }
+
+  startImport().catch(console.error)
+
+  return { progress: `upload-${socket_name}`, result: `result-${socket_name}` }
 }

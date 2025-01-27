@@ -691,7 +691,16 @@ exports.importData = async (req) => {
 
           // ========= Code
           if (!element.Code) element.errors.push('Code is required')
-          else furniture.kode = element.Code
+          else {
+            const existingCode = await Models.Asset.findOne({
+              paranoid: false,
+              where: {
+                kode: element.Code,
+              },
+            })
+            if (existingCode) element.errors.push('Code already exist!')
+            else furniture.kode = element.Code
+          }
 
           // ========= Condition
           if (!element.Conditions) element.errors.push('Condition is required')

@@ -45,12 +45,12 @@ exports.updateRequest = [
   removeUndefinedRequest,
 ]
 
-exports.convertExcel = [
+exports.importRequest = [
   checkFile({
-    name: 'assets',
+    name: 'electronics',
     allow: ['vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
     multi: false,
     required: true,
   }),
-  readFileExcel('merchants'),
+  readFileExcel('electronics'),
 ]

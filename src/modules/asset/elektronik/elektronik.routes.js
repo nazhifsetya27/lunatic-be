@@ -11,11 +11,12 @@ const {
   example,
   printCode,
   exportData,
+  imports,
 } = require('./elektronik.controller')
 const {
   storeRequest,
   updateRequest,
-  convertExcel,
+  importRequest,
 } = require('./elektronik.middleware')
 
 const router = express.Router()
@@ -28,7 +29,7 @@ router.get('/:id/detail', detail)
 router.get('/:id/print', printCode)
 
 router.post('/', storeRequest, store)
-router.post('/import', convertExcel, importData)
+router.post('/import', importRequest, imports)
 
 router.patch('/:id', updateRequest, update)
 router.patch('/:id/restore', restore)

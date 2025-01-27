@@ -26,8 +26,8 @@ router.get('/:id/detail', detail)
 router.get('/:id/print', printCode)
 
 router.post('/', storeRequest, store)
-
 router.post('/import', importRequest, imports)
+
 router.patch('/:id', updateRequest, update)
 router.patch('/:id/restore', restore)
 
