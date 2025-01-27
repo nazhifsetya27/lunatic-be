@@ -9,11 +9,21 @@ const {
   showData,
   updateData,
   printData,
+  exampleData,
+  importData,
 } = require('./umum.repository')
 
 exports.index = async (req, res) => {
   try {
     Request.success(res, await collections(req))
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.example = async (req, res) => {
+  try {
+    await exampleData(req, res)
   } catch (error) {
     Request.error(res, error)
   }
@@ -74,6 +84,15 @@ exports.update = async (req, res) => {
 exports.printCode = async (req, res) => {
   try {
     Request.success(res, await printData(req))
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.imports = async (req, res) => {
+  try {
+    const data = await importData(req)
+    Request.success(res, { message: 'Success import data', data })
   } catch (error) {
     Request.error(res, error)
   }
