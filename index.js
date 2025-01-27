@@ -35,15 +35,6 @@ const upload = multer({ dest: UPLOAD_TEMP_PATH })
 exports.UPLOAD_TEMP_PATH = UPLOAD_TEMP_PATH
 app.use(upload.any())
 
-// Debug Middleware
-app.use((req, res, next) => {
-  console.log(`HTTP Request: ${req.method} ${req.url}`)
-  if (req.path === '/socket.io') {
-    console.log('Request hitting /socket.io')
-  }
-  next()
-})
-
 // Routes
 app.get('/', (req, res) => {
   res.json('service lunatic BE is running')
