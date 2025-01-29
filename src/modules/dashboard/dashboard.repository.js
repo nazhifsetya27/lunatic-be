@@ -64,9 +64,9 @@ exports.collections = async (req, res) => {
       approved_percentage: approvedPercentage,
       in_progress_percentage: inProgressPercentage,
       rejected_percentage: rejectedPercentage,
-      pending_percentage: waitingForApprovalPercentage,
+      waiting_for_approval_percentage: waitingForApprovalPercentage,
     },
   }
 
-  return result
+  return { data: result }
 }
