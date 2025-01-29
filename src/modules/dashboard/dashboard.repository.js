@@ -1,10 +1,9 @@
 const { Op } = require('sequelize')
 const { Models } = require('../../sequelize/models')
-const { StockAdjustment } = Models
+const { StockAdjustment, Asset, Condition } = Models
 
 exports.collections = async (req, res) => {
   const { date_range } = req.query
-
   const whereClause = {}
   if (date_range && date_range.length === 2) {
     const [startDate, endDate] = date_range
@@ -18,6 +17,21 @@ exports.collections = async (req, res) => {
     include: [
       {
         association: 'stock_adjustment',
+        include: [
+          {
+            association: 'asset',
+            attributes: ['id', 'name', 'storage_management_id'],
+            include: [
+              {
+                association: 'storage',
+                include: {
+                  association: 'unit',
+                  attributes: ['id', 'name'],
+                },
+              },
+            ],
+          },
+        ],
       },
     ],
   })
@@ -29,6 +43,11 @@ exports.collections = async (req, res) => {
     waiting_for_approval: 0,
     in_progress: 0,
   }
+  data.forEach((stockAdj) => {
+    stockAdj.stock_adjustment = stockAdj.stock_adjustment.filter(
+      (item) => item.asset?.storage?.unit?.id === req.user.unit_id
+    )
+  })
 
   data.forEach((item) => {
     if (item.status === 'Approved') {
@@ -55,6 +74,77 @@ exports.collections = async (req, res) => {
     ? ((summary.in_progress / total) * 100).toFixed(2) + '%'
     : '0%'
 
+  const asset = await Asset.findAll({
+    where: {
+      '$storage.unit_id$': req.user.unit_id,
+    },
+    include: [
+      {
+        association: 'storage',
+        include: {
+          association: 'unit',
+          attributes: ['id', 'name'],
+        },
+      },
+      {
+        association: 'condition',
+        attributes: ['id', 'name'],
+      },
+    ],
+    attributes: [
+      'id',
+      'name',
+      'category',
+      'storage_management_id',
+      'condition_id',
+    ],
+  })
+
+  const conditions = await Condition.findAll({
+    attributes: ['id', 'name'],
+  })
+
+  const conditionMap = {}
+  conditions.forEach((cond) => {
+    conditionMap[cond.id] = cond.name
+  })
+
+  const summary2 = {}
+  asset.forEach((item) => {
+    const category = item.category.toLowerCase() || 'Uncategorized'
+    const conditionId = item.condition_id
+    const conditionName = conditionMap[conditionId] || 'Unknown'
+    if (!summary2[category]) {
+      summary2[category] = { total: 0, conditions: {} }
+
+      conditions.forEach((cond) => {
+        summary2[category].conditions[cond.name] = {
+          count: 0,
+          percentage: '0.00%',
+        }
+      })
+    }
+
+    summary2[category].total++
+
+    if (summary2[category].conditions[conditionName]) {
+      summary2[category].conditions[conditionName].count++
+    }
+  })
+
+  Object.keys(summary2).forEach((category) => {
+    const totalAssets = summary2[category].total
+
+    Object.keys(summary2[category].conditions).forEach((condition) => {
+      const count = summary2[category].conditions[condition].count
+      const percentage = totalAssets
+        ? ((count / totalAssets) * 100).toFixed(2) + '%'
+        : '0.00%'
+
+      summary2[category].conditions[condition].percentage = percentage
+    })
+  })
+
   const result = {
     job_order_summary: {
       approved: summary.approved.toString(),
@@ -66,6 +156,7 @@ exports.collections = async (req, res) => {
       rejected_percentage: rejectedPercentage,
       waiting_for_approval_percentage: waitingForApprovalPercentage,
     },
+    asset_summary: summary2,
   }
 
   return { data: result }
