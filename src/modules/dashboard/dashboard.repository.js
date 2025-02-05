@@ -17,16 +17,22 @@ exports.collections = async (req, res) => {
     include: [
       {
         association: 'stock_adjustment',
+        required: true,
         include: [
           {
             association: 'asset',
+            // required: true,
             attributes: ['id', 'name', 'storage_management_id'],
             include: [
               {
                 association: 'storage',
+                required: true,
                 include: {
                   association: 'unit',
                   attributes: ['id', 'name'],
+                  where: {
+                    id: req.user.unit_id,
+                  },
                 },
               },
             ],
