@@ -194,6 +194,15 @@ exports.detailData = async (req) => {
     kode: detailData.kode,
     kondisi: detailData?.condition?.name ?? '-',
     kategory: detailData.category,
+    'Tanggal perolehan': moment(detailData?.acquisition_date)
+      .locale('id')
+      .format('DD MMMM YYYY • HH:mm'),
+      Harga: detailData?.price
+      ? new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+        }).format(detailData.price)
+      : '-',
     unit: detailData?.storage?.unit?.name ?? '-',
     gedung: detailData?.storage?.building?.name ?? '-',
     lantai: detailData?.storage?.storage_floor?.name ?? '-',
@@ -211,7 +220,16 @@ exports.detailData = async (req) => {
 
 exports.storeData = async (req) => {
   const data = await sequelize.transaction(async (transaction) => {
-    const { name, kode, unit_id, building_id, floor_id, room_id } = req.body
+    const {
+      name,
+      kode,
+      acquisition_date,
+      price,
+      unit_id,
+      building_id,
+      floor_id,
+      room_id,
+    } = req.body
 
     if (!unit_id) throw 'unit_id is required!'
     if (!building_id) throw 'building_id is required!'
@@ -233,6 +251,8 @@ exports.storeData = async (req) => {
       {
         name,
         kode,
+        acquisition_date,
+        price,
         storage_management_id: storageManagement.id,
         // unit_id, // kalau ada logic buat filter unit, baru nyalain
         condition_id: '714f523c-0130-41fa-8d09-e0025731b0db', // default SANGAT BAIK
@@ -278,6 +298,8 @@ exports.updateData = async (req) => {
     const submitData = {
       name: post.name,
       kode: post.kode,
+      acquisition_date: post.acquisition_date,
+      price: post.price,
     }
 
     // Only add storage_management_id if found
