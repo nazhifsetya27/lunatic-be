@@ -26,6 +26,8 @@ exports.storeRequest = [
       if (existingData) throw 'Name already exist!'
     }),
   check('kode').notEmpty().bail().isString(),
+  check('acquisition_date').optional().bail().isISO8601().toDate(),
+  check('price').optional().bail().isString(),
   check('unit_id').notEmpty().bail().isUUID(4),
   check('building_id').notEmpty().bail().isUUID(4),
   check('floor_id').optional().bail().isUUID(4),
@@ -37,6 +39,8 @@ exports.storeRequest = [
 exports.updateRequest = [
   check('name').notEmpty().bail().isString(),
   check('kode').optional().bail().isString(),
+  check('acquisition_date').optional().bail().isISO8601().toDate(),
+  check('price').optional().bail().isString(),
   check('unit_id').optional().bail().isUUID(4),
   check('building_id').optional().bail().isUUID(4),
   check('floor_id').optional().bail().isUUID(4),
