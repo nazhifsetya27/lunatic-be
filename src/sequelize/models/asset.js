@@ -42,6 +42,12 @@ const Asset = sequelizeDB.define(
       type: Sequelize.BOOLEAN,
       defaultValue: false,
     },
+    acquisition_date: {
+      type: Sequelize.DATE,
+    },
+    price: {
+      type: Sequelize.STRING,
+    },
     createdAt: {
       type: Sequelize.DATE,
     },
