@@ -18,7 +18,7 @@ const Asset = sequelizeDB.define(
     kode: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: false,
     },
     category: {
       type: Sequelize.STRING(50),

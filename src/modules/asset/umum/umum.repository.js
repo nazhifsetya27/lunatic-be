@@ -16,13 +16,22 @@ exports.collections = async (req) => {
   const numberPage = Number(page)
 
   const where = {
-    [Op.and]: [{ category: 'Umum' }, { '$storage.unit.id$': user?.unit?.id }],
+    [Op.and]: [
+      { category: 'Umum' },
+      ...(user?.unit?.id ? [{ '$storage.unit.id$': user.unit.id }] : []),
+    ],
   }
 
   if (filter) where[Op.and].push(Query.parseFilter(filter, Models.Asset))
 
-  if (search)
-    where[Op.and].push({ [Op.or]: { name: { [Op.iLike]: `%${search}%` } } })
+  if (search) {
+    where[Op.and].push({
+      [Op.or]: [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { kode: { [Op.iLike]: `%${search}%` } },
+      ],
+    })
+  }
 
   const query = {
     where,
@@ -235,16 +244,21 @@ exports.updateData = async (req) => {
   await sequelize.transaction(async (transaction) => {
     const post = req.body
 
-    const storageManagement = await StorageManagement.findOne({
-      where: {
-        unit_id: post.unit_id,
-        building_id: post.building_id,
-        floor_id: post.floor_id,
-        room_id: post.room_id,
-      },
-    })
+    // Build a dynamic where condition with null safety
+    const whereCondition = {}
+    if (post.unit_id) whereCondition.unit_id = post.unit_id
+    if (post.building_id) whereCondition.building_id = post.building_id
+    if (post.floor_id) whereCondition.floor_id = post.floor_id
+    if (post.room_id) whereCondition.room_id = post.room_id
+
+    // Check storage management existence
+    const storageManagement = Object.keys(whereCondition).length
+      ? await StorageManagement.findOne({ where: whereCondition })
+      : null
+
     if (!storageManagement) throw 'storageManagement not found'
 
+    // Find the 'Umum' category asset
     const furniture = await Models.Asset.findOne({
       where: { id: req.params.id, category: 'Umum' },
       paranoid: false,
@@ -253,10 +267,15 @@ exports.updateData = async (req) => {
 
     if (!furniture) throw 'Data not found'
 
+    // Prepare submitData dynamically
     const submitData = {
       name: post.name,
       kode: post.kode,
-      storage_management_id: storageManagement.id,
+    }
+
+    // Only add storage_management_id if found
+    if (storageManagement?.id) {
+      submitData.storage_management_id = storageManagement.id
     }
 
     await furniture.update(submitData, { req, transaction })

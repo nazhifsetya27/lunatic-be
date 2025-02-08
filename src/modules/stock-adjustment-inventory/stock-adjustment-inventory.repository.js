@@ -159,14 +159,16 @@ exports.adjustData = async (req) => {
     // save evidence to server
     // format -> {stock_adjustment_id}/{asset_category}/{asset_id}
     const savedFileName = `${stock_adjustment_inventory?.stock_adjustment_id}_${stock_adjustment_inventory?.asset?.category?.toLowerCase()}_${stock_adjustment_inventory?.asset?.id}`
-    console.log('savedFileName: ', savedFileName)
+    // console.log('savedFileName: ', savedFileName)
 
-    await saveImage(
-      req.file.photo,
-      // stock_adjustment_inventory.id,
-      savedFileName,
-      'stock_adjustment'
-    )
+    if (req?.file?.photo) {
+      saveImage(
+        req.file.photo,
+        // stock_adjustment_inventory.id,
+        savedFileName,
+        'stock_adjustment'
+      )
+    }
 
     // save evidence_url to db -> image_id/view
     const photo_url = `stock-adjustment/${savedFileName}/view`

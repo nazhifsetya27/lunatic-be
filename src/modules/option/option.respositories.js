@@ -203,3 +203,47 @@ exports.assetList = async (req, res) => {
     Request.error(res, error)
   }
 }
+
+exports.kodeList = async (req, res) => {
+  try {
+    const { search, category } = req.query
+
+    const where = {}
+
+    if (category) {
+      where.category = category
+    }
+
+    if (search) {
+      where[Op.or] = [
+        {
+          name: {
+            [Op.iLike]: `%${search}%`,
+          },
+        },
+      ]
+    }
+
+    const assetData = await Asset.findAll({
+      where,
+      attributes: ['id', 'name', 'category', 'kode'],
+      order: [['name', 'asc']],
+    })
+
+    const arrayCode = assetData.map((val) => val.kode)
+    const PrefixCode = arrayCode.map((val) => val.slice(0, 1))
+    const numberCode = arrayCode.map((val) => val.slice(1, 2))
+
+    const nextNumber = Math.max(...numberCode) + 1
+
+    const finalCode = `${PrefixCode[0]}${nextNumber}`
+
+    assetData.push({ name: '', kode: finalCode })
+
+    Request.success(res, {
+      data: assetData,
+    })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
