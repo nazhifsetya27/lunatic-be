@@ -760,12 +760,13 @@ exports.printData = async (req) => {
 
     const printCode = [
       asset?.kode,
-      asset?.storage?.unit?.kode,
+      asset?.storage?.building?.kode,
       asset?.storage?.storage_floor?.kode,
       asset?.storage?.storage_room?.kode,
-      asset?.storage?.unit?.name?.toUpperCase().replace(/\s+/g, ''), // Convert to uppercase and remove spaces
       'EXCOMP',
-      '2025',
+      // asset?.storage?.unit?.kode,
+      asset?.storage?.unit?.name?.toUpperCase().replace(/\s+/g, ''), // Convert to uppercase and remove spaces
+      moment().format('YYYY'),
     ]
       .filter(Boolean)
       .join('/')
