@@ -5,6 +5,15 @@ const Jimp = require('jimp')
 const path = require('path')
 const { Request } = require('./request')
 
+exports.createPath = (pathname) => {
+  const tempPath = []
+
+  pathname.split('/').forEach((path) => {
+    tempPath.push(path)
+    if (!fs.existsSync(tempPath.join('/'))) fs.mkdirSync(tempPath.join('/'))
+  })
+}
+
 exports.checkFile =
   ({ name, required, allow = [], multi = false }) =>
   (req, res, next) => {
@@ -227,50 +236,41 @@ exports.readFileExcel = (name) => (req, res, next) => {
   }
 }
 
-const saveImage = async (file, name, dir) => {
+const saveImage = (file, name, dir) => {
   if (!file) throw 'Image is empty'
-
   try {
-    // Generate paths and filenames
-    const tempPath = `public/uploads/temp/${file.originalname}-${uuid.v4()}`
-    const { mimetype, buffer } = file
+    const myPath = `public/uploads/temp/${file.originalname}-${uuid.v4()}`
+    const { mimetype } = file
     const ext = mimetype.split('/')[1]
-    name = name?.replace(/\W/g, '-') || new Date().getTime().toString()
-    const imageDir = `public/uploads/images/${dir}`
-    const finalFilename = `${name}.${ext}`
-    const savePath = `${imageDir}/${finalFilename}`
-
+    name = name?.replace(/\W/g, '-')
+    const pathname = `public/uploads/images/${dir}`
+    const filename = `${name ?? new Date().getTime()}.${ext}`
+    const savePath = `${pathname}/${filename}`
     console.log(savePath, '<<<')
+    ;(async () => {
+      await sharp(file.path)
+        .rotate() // Automatically rotate based on EXIF orientation
+        .withMetadata(false)
+        .toFile(myPath)
 
-    // Save the file buffer to tempPath
-    fs.writeFileSync(tempPath, buffer)
+      fs.unlink(file.path, (err) => {
+        if (err) {
+          console.error('Error deleting temp file:', err)
+        } else {
+          console.log('Temp File deleted successfully.')
+        }
+      })
 
-    // Process the image using Sharp
-    await sharp(tempPath)
-      .rotate() // Automatically rotate based on EXIF orientation
-      .withMetadata(false)
-      .toFile(savePath)
-
-    // Delete the original uploaded temp file
-    fs.unlink(tempPath, (err) => {
-      if (err) {
-        console.error('Error deleting original temp file:', err)
-      } else {
-        console.log('Original temp file deleted successfully.')
-      }
-    })
-
-    // Ensure the directory exists
-    if (!fs.existsSync(imageDir)) {
-      fs.mkdirSync(imageDir, { recursive: true })
-    }
-
-    // Process the image further with Jimp
-    // const image = await Jimp.read(tempPath)
-    // await image.quality(60).writeAsync(savePath)
-
-    // Remove the temporary file created by Sharp
-    fs.unlinkSync(tempPath)
+      this.createPath(pathname)
+      Jimp.read(myPath, (err, lenna) => {
+        if (err) throw err
+        lenna
+          .quality(60) // set JPEG quality
+          .write(savePath, (err) => {
+            if (!err) fs.unlinkSync(myPath)
+          }) // save
+      })
+    })()
 
     return savePath.replace('public/', '')
   } catch (err) {

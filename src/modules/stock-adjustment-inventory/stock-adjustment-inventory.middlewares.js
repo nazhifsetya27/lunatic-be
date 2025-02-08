@@ -101,7 +101,7 @@ exports.adjustRequest = [
     }),
   checkFile({
     name: 'photo',
-    required: true,
+    required: false,
     allow: ['png', 'jpeg', 'jpg'],
   }),
   validateRequest,
