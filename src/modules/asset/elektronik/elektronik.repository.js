@@ -683,7 +683,7 @@ exports.collectionExport = async (req, res) => {
     'Name', // 1
     'Kode', // 2
     'Category', // 3
-    'Quantity', // 4
+    // 'Quantity', // 4
     'Condition', // 5
     'Unit', // 6
     'Gedung', // 7
@@ -699,12 +699,12 @@ exports.collectionExport = async (req, res) => {
     worksheet.cell(index + 2, 1).string(data.name ?? '')
     worksheet.cell(index + 2, 2).string(data.kode ?? '')
     worksheet.cell(index + 2, 3).string(data.category ?? '')
-    worksheet.cell(index + 2, 4).string(data.quantity ?? '')
-    worksheet.cell(index + 2, 5).string(data.condition?.name ?? '')
-    worksheet.cell(index + 2, 6).string(data.storage?.unit?.name ?? '')
-    worksheet.cell(index + 2, 7).string(data.storage?.building?.name ?? '')
-    worksheet.cell(index + 2, 8).string(data.storage?.storage_floor?.name ?? '')
-    worksheet.cell(index + 2, 9).string(data.storage?.storage_room?.name ?? '')
+    // worksheet.cell(index + 2, 4).string(data.quantity ?? '')
+    worksheet.cell(index + 2, 4).string(data.condition?.name ?? '')
+    worksheet.cell(index + 2, 5).string(data.storage?.unit?.name ?? '')
+    worksheet.cell(index + 2, 6).string(data.storage?.building?.name ?? '')
+    worksheet.cell(index + 2, 7).string(data.storage?.storage_floor?.name ?? '')
+    worksheet.cell(index + 2, 8).string(data.storage?.storage_room?.name ?? '')
   })
 
   worksheet2.cell(1, 1).string('Search')
