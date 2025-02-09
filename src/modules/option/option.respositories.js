@@ -295,14 +295,27 @@ exports.approverList = async (req, res) => {
 exports.requesterList = async (req, res) => {
   try {
     const { search } = req.query
+
+    const where = { [Op.and]: [] }
+
+    if (search) {
+      where[Op.and].push({
+        [Op.or]: [{ name: { [Op.iLike]: `%${search}%` } }],
+      })
+    }
+
+    where[Op.and].push({
+      '$requester.unit_id$': req.user.unit_id,
+    })
+
     const data = await Models.Approval.findAll({
-      where: search ? { name: { [Op.iLike]: `%${search}%` } } : {},
+      where,
       attributes: ['requester_id'],
       include: [
         {
           paranoid: false,
           association: 'requester',
-          attributes: ['id', 'name'],
+          attributes: ['id', 'name', 'unit_id'],
         },
       ],
     })

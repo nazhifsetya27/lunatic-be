@@ -16,7 +16,21 @@ exports.collections = async (req, res) => {
   } = req.query
   const numberPage = Number(page)
 
-  const where = { [Op.and]: [] }
+  const where = {
+    [Op.and]: [
+      sequelize.literal(`
+        EXISTS (
+          SELECT 1 FROM "stock_adjustments" AS sa
+          JOIN "stock_adjustment_inventories" AS sai ON sa.id = sai.stock_adjustment_id
+          JOIN "assets" AS a ON sai.asset_id = a.id
+          JOIN "storage_managements" AS sm ON a.storage_management_id = sm.id
+          JOIN "units" AS u ON sm.unit_id = u.id
+          WHERE sa.id = "approvals"."stock_adjustment_id"
+          AND u.id = '${req.user.unit_id}'
+        )
+      `),
+    ],
+  }
 
   if (search) {
     where[Op.and].push({
