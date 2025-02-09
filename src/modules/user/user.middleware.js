@@ -11,24 +11,32 @@ const checkValidate = async (value, { req }) => {
   const body = req.body
   const { id } = req.params
 
-  const where = {
-    email: { [Op.iLike]: body.email },
-  }
-
-  if (id) where.id = { [Op.ne]: id }
-  const dataExist = await User.findOne({
-    where,
+  const existingEmailUser = await User.findOne({
+    where: {
+      email: { [Op.iLike]: body.email },
+      ...(id && { id: { [Op.ne]: id } }),
+    },
     paranoid: false,
   })
 
-  if (dataExist) {
-    if (dataExist.isSoftDeleted()) throw 'Data already in archived'
-    throw 'Data already exist'
+  if (existingEmailUser) {
+    throw 'A user with this email already exists.'
   }
 
-  // if (req.user.role !== 'Administrator' && body.password) {
-  //   throw 'Only Administrator can change password'
-  // }
+  if (['Administrator', 'Approver'].includes(body.role)) {
+    const existingRoleUser = await User.findOne({
+      where: {
+        role: { [Op.in]: ['Administrator', 'Approver'] },
+        unit_id: req.user.unit_id,
+        ...(id && { id: { [Op.ne]: id } }),
+      },
+      paranoid: false,
+    })
+
+    if (existingRoleUser) {
+      throw `A user with the role ${body.role} already exists in this unit.`
+    }
+  }
 }
 
 exports.findOneData = async (req, res, next) => {
