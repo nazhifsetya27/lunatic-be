@@ -26,8 +26,8 @@ const checkValidate = async (value, { req }) => {
   if (['Administrator', 'Approver'].includes(body.role)) {
     const existingRoleUser = await User.findOne({
       where: {
-        role: { [Op.in]: ['Administrator', 'Approver'] },
-        unit_id: req.user.unit_id,
+        role: body.role,
+        unit_id: body.unit_id,
         ...(id && { id: { [Op.ne]: id } }),
       },
       paranoid: false,
