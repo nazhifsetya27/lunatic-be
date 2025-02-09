@@ -56,3 +56,13 @@ exports.importRequest = [
   }),
   readFileExcel('furnitures'),
 ]
+
+exports.importAllRequest = [
+  checkFile({
+    name: 'asset',
+    allow: ['vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+    multi: false,
+    required: true,
+  }),
+  readFileExcel('asset'),
+]

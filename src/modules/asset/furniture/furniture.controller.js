@@ -11,6 +11,9 @@ const {
   printData,
   importData,
   exampleData,
+  exampleDataAll,
+  importDataAll,
+  collectionExportAll,
 } = require('./furniture.repository')
 
 exports.index = async (req, res) => {
@@ -89,10 +92,35 @@ exports.example = async (req, res) => {
   }
 }
 
+exports.exampleAll = async (req, res) => {
+  try {
+    await exampleDataAll(req, res)
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
 exports.imports = async (req, res) => {
   try {
     const data = await importData(req)
     Request.success(res, { message: 'Success import data', data })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.importAll = async (req, res) => {
+  try {
+    const data = await importDataAll(req)
+    Request.success(res, { message: 'Success import data', data })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.exportDataAll = async (req, res) => {
+  try {
+    await collectionExportAll(req, res)
   } catch (error) {
     Request.error(res, error)
   }
