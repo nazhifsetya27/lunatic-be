@@ -2,8 +2,16 @@ const { Op } = require('sequelize')
 const { Models } = require('../../sequelize/models')
 const { Request } = require('../../helper')
 
-const { Unit, Building, Floor, Room, StorageManagement, Condition, Asset } =
-  Models
+const {
+  Unit,
+  Building,
+  Floor,
+  Room,
+  StorageManagement,
+  Condition,
+  Asset,
+  User,
+} = Models
 
 exports.unitList = async (req, res) => {
   try {
@@ -243,6 +251,71 @@ exports.kodeList = async (req, res) => {
     Request.success(res, {
       data: assetData,
     })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.approverList = async (req, res) => {
+  try {
+    const { search } = req.query
+    const where = { [Op.and]: [] }
+
+    if (search) {
+      where[Op.and].push({
+        [Op.or]: [{ name: { [Op.iLike]: `%${search}%` } }],
+      })
+    }
+
+    where[Op.and].push({
+      role: { [Op.in]: ['Administrator', 'Approver'] },
+    })
+
+    where[Op.and].push({
+      unit_id: req.user.unit_id,
+    })
+
+    const data = await Models.User.findAll({
+      where,
+      attributes: ['id', 'name', 'unit_id'],
+    })
+
+    const uniqueApprover = Array.from(new Set(data.map((a) => a.id))).map(
+      (id) => {
+        return data.find((a) => a.id === id)
+      }
+    )
+
+    Request.success(res, { data: uniqueApprover })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
+
+exports.requesterList = async (req, res) => {
+  try {
+    const { search } = req.query
+    const data = await Models.Approval.findAll({
+      where: search ? { name: { [Op.iLike]: `%${search}%` } } : {},
+      attributes: ['requester_id'],
+      include: [
+        {
+          paranoid: false,
+          association: 'requester',
+          attributes: ['id', 'name'],
+        },
+      ],
+    })
+
+    const requester = data.map((el) => el.requester)
+
+    const uniqueRequester = Array.from(new Set(requester.map((a) => a.id))).map(
+      (id) => {
+        return requester.find((a) => a.id === id)
+      }
+    )
+
+    Request.success(res, { data: uniqueRequester })
   } catch (error) {
     Request.error(res, error)
   }

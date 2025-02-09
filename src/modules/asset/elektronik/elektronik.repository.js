@@ -180,6 +180,34 @@ exports.detailData = async (req) => {
         association: 'condition',
         attributes: ['id', 'name'],
       },
+      {
+        association: 'asset',
+        // attributes: ['id', 'name'],
+        order: [['created_at', 'DESC']],
+        include: [
+          {
+            association: 'stock_adjustment',
+            where: {
+              status: 'Approved',
+            },
+            include: [
+              {
+                paranoid: false,
+                association: 'created_by',
+                attributes: ['id', 'name'],
+              },
+            ],
+          },
+          {
+            association: 'previous_condition',
+            attributes: ['id', 'name'],
+          },
+          {
+            association: 'current_condition',
+            attributes: ['id', 'name'],
+          },
+        ],
+      },
     ],
   })
 
@@ -211,7 +239,20 @@ exports.detailData = async (req) => {
       .format('DD MMMM YYYY • HH:mm'),
   }
 
-  return { data }
+  const asset_history = detailData.asset
+    .map((el) => ({
+      stock_adjustment_inventory_created_at: el.created_at,
+      stock_adjustment_created_by: el.stock_adjustment?.created_by?.name,
+      asset_current_condition: el.current_condition?.name,
+      asset_previous_condition: el.previous_condition?.name,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.stock_adjustment_inventory_created_at) -
+        new Date(a.stock_adjustment_inventory_created_at)
+    )
+
+  return { data, asset_history, raw: detailData }
 }
 
 exports.storeData = async (req) => {

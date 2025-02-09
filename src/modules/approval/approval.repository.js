@@ -3,6 +3,7 @@ const { Models } = require('../../sequelize/models')
 
 const { Approval, Asset } = Models
 const { sequelize } = Models.Approval
+const { Query } = require('../../helper')
 
 exports.collections = async (req, res) => {
   const {
@@ -11,23 +12,19 @@ exports.collections = async (req, res) => {
     archive,
     search,
     status = 'view all',
+    filter,
   } = req.query
   const numberPage = Number(page)
 
-  const where = {}
+  const where = { [Op.and]: [] }
 
   if (search) {
     where[Op.and].push({
-      [Op.or]: [
-        sequelize.literal(`EXISTS (
-            SELECT *
-            FROM "stock_adjustments" AS "sa"
-            WHERE "approvals"."stock_adjustment_id" = "sa"."id"
-            AND "sa"."name" ILIKE '%${search}%'
-          )`),
-      ],
+      [Op.or]: [{ '$stock_adjustment.name$': { [Op.iLike]: `%${search}%` } }],
     })
   }
+
+  if (filter) where[Op.and].push(Query.parseFilter(filter, Models.Approval))
 
   const query = {
     where,
@@ -80,6 +77,8 @@ exports.collections = async (req, res) => {
     query.paranoid = false
   } else if (status === 'Waiting for approval') {
     where.status = 'Waiting for approval'
+  } else if (status === 'Rejected') {
+    where.status = 'Rejected'
   }
 
   const data = await Approval.findAndCountAll(query)
@@ -96,7 +95,18 @@ exports.collections = async (req, res) => {
       total_page: totalPage || 1,
       total,
     },
-    // filter: [],
+    filter: [
+      Query.filter('approver_id', 'Approver', 'select', {
+        path: '/option/approver-list',
+        key: 'id',
+        optionLabel: 'name',
+      }),
+      Query.filter('requester_id', 'Requester', 'select', {
+        path: '/option/requester-list',
+        key: 'id',
+        optionLabel: 'name',
+      }),
+    ],
   }
 }
 
@@ -144,7 +154,9 @@ exports.approveData = async (req) => {
     const { id } = req.params
     const { status, description } = req.body
 
-    if (req.user.role !== 'Administrator' || req.user.role !== 'Approver') {
+    console.log(req.user.role, '<<<<<')
+
+    if (req.user.role !== 'Administrator' && req.user.role !== 'Approver') {
       throw 'Unauthorized'
     }
 
