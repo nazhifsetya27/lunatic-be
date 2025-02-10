@@ -10,8 +10,12 @@ const { StockAdjustment, StockAdjustmentInventory, Asset } = Models
 exports.collections = async (req) => {
   const { page = 1, page_size = 10, search, archive, filter, type } = req.query
   const numberPage = Number(page)
+  const { user } = req
+  console.log(user.unit)
 
-  const where = { [Op.and]: [] }
+  const where = {
+    [Op.and]: [{ '$created_by.unit_id$': { [Op.eq]: `${user?.unit?.id}` } }],
+  }
 
   if (filter)
     where[Op.and].push(Query.parseFilter(filter, Models.StockAdjustment))
@@ -32,7 +36,7 @@ exports.collections = async (req) => {
       {
         paranoid: false,
         association: 'created_by',
-        attributes: ['id', 'name', 'role', 'photo_url'],
+        attributes: ['id', 'name', 'role', 'photo_url', 'unit_id'],
       },
     ],
     offset: (page - 1) * page_size,
