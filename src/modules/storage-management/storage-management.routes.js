@@ -26,6 +26,6 @@ router.post('/', storeRequest, store)
 // router.patch('/:id', updateRequest, update)
 // router.patch('/:id/restore', restore)
 
-// router.delete('/:id', remove)
+router.delete('/:id', remove)
 
 module.exports = router

@@ -330,3 +330,20 @@ exports.storeData = async (req) => {
 
   return { data }
 }
+
+exports.removeData = async (req) => {
+  await sequelize.transaction(async (transaction) => {
+    const { storage_management_id } = req.params
+    console.log('storage_management_id: ', storage_management_id)
+
+    const storagemanagement = await Models.StorageManagement.findOne({
+      where: { id: storage_management_id },
+      paranoid: false,
+      transaction,
+    })
+
+    if (!storagemanagement) throw new Error('storagemanagement not found')
+
+    await storagemanagement.destroy({ req, transaction, force: true })
+  })
+}
