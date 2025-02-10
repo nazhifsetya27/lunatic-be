@@ -42,14 +42,14 @@ exports.store = async (req, res) => {
   }
 }
 
-// exports.remove = async (req, res) => {
-//   try {
-//     await removeData(req)
-//     Request.success(res, { message: 'Data successfully removed' })
-//   } catch (error) {
-//     Request.error(res, error)
-//   }
-// }
+exports.remove = async (req, res) => {
+  try {
+    await removeData(req)
+    Request.success(res, { message: 'Data successfully removed' })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
 
 // exports.restore = async (req, res) => {
 //   try {
