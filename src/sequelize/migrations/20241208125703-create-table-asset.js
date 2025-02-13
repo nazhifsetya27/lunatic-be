@@ -7,6 +7,11 @@ module.exports = {
         type: Sequelize.STRING(36),
         primaryKey: true,
       },
+      nomor: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+      },
       name: {
         allowNull: false,
         type: Sequelize.STRING,

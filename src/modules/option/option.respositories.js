@@ -1,4 +1,4 @@
-const { Op } = require('sequelize')
+const { Op, Sequelize } = require('sequelize')
 const { Models } = require('../../sequelize/models')
 const { Request } = require('../../helper')
 
@@ -158,45 +158,27 @@ exports.assetList = async (req, res) => {
     const where = { is_being_adjusted: false }
 
     if (search) {
-      // If not a stock adjustment search
-      // if (!isStockAdjustment) {
       where[Op.or] = [
         {
           name: {
             [Op.iLike]: `%${search}%`, // Search by name
           },
         },
+        {
+          kode: {
+            [Op.iLike]: `%${search}%`, // Search by kode
+          },
+        },
+        Sequelize.where(Sequelize.cast(Sequelize.col('nomor'), 'TEXT'), {
+          [Op.iLike]: `%${search}%`, // Search by nomor (cast to TEXT)
+        }),
       ]
-      // }
-
-      // if (isStockAdjustment) {
-      //   where[Op.and] = where[Op.and] || []
-      //   where[Op.and].push({
-      //     [Op.or]: [
-      //       {
-      //         name: {
-      //           [Op.iLike]: `%${search}%`, // Search by category
-      //         },
-      //       },
-      //       {
-      //         category: {
-      //           [Op.iLike]: `%${search}%`, // Search by category
-      //         },
-      //       },
-      //       {
-      //         kode: {
-      //           [Op.iLike]: `%${search}%`, // Search by kode
-      //         },
-      //       },
-      //     ],
-      //   })
-      // }
     }
 
     Request.success(res, {
       data: await Asset.findAll({
         where,
-        attributes: ['id', 'name', 'category', 'kode'],
+        attributes: ['id', 'nomor', 'name', 'category', 'kode'],
         include: [
           {
             paranoid: false,
@@ -217,19 +199,25 @@ exports.kodeList = async (req, res) => {
     const { search, category } = req.query
 
     const where = {}
+    const defaultPrefixCode = [
+      { name: 'Furniture', kode: 'F1' },
+      { name: 'Elektronik', kode: 'E1' },
+      { name: 'Umum', kode: 'U1' },
+    ]
 
-    if (category) {
-      where.category = category
+    // Validate category or use first default as fallback
+    const validatedCategory = defaultPrefixCode.some(
+      (item) => item.name === category
+    )
+      ? category
+      : defaultPrefixCode[0].name
+
+    if (validatedCategory) {
+      where.category = validatedCategory
     }
 
     if (search) {
-      where[Op.or] = [
-        {
-          name: {
-            [Op.iLike]: `%${search}%`,
-          },
-        },
-      ]
+      where[Op.or] = [{ name: { [Op.iLike]: `%${search}%` } }]
     }
 
     const assetData = await Asset.findAll({
@@ -238,19 +226,42 @@ exports.kodeList = async (req, res) => {
       order: [['name', 'asc']],
     })
 
-    const arrayCode = assetData.map((val) => val.kode)
-    const PrefixCode = arrayCode.map((val) => val.slice(0, 1))
-    const numberCode = arrayCode.map((val) => val.slice(1, 2))
+    // Get relevant codes
+    let arrayCode
+    if (!assetData.length) {
+      const defaultEntry =
+        defaultPrefixCode.find((item) => item.name === validatedCategory) ||
+        defaultPrefixCode[0] // Fallback to first default
+      arrayCode = [defaultEntry.kode]
+    } else {
+      arrayCode = assetData.map((val) => val.kode).filter(Boolean)
+    }
 
-    const nextNumber = Math.max(...numberCode) + 1
+    // Fallback if codes are still empty
+    if (!arrayCode.length) {
+      arrayCode = [defaultPrefixCode[0].kode]
+    }
 
-    const finalCode = `${PrefixCode[0]}${nextNumber}`
-
-    assetData.push({ name: '', kode: finalCode })
-
-    Request.success(res, {
-      data: assetData,
+    // Extract prefix and number safely
+    const firstCode = arrayCode[0] || 'U1' // Final fallback
+    const prefix = firstCode.slice(0, 1)
+    const numbers = arrayCode.map((code) => {
+      const numPart = code.slice(1)
+      return parseInt(numPart, 10) || 0
     })
+
+    // Calculate next number (ensure minimum 1)
+    const maxNumber = Math.max(...numbers, 0) // Handle empty numbers case
+    const nextNumber = maxNumber
+
+    // Generate final code
+    const finalCode = `${prefix}${nextNumber}`
+
+    // Prepare response
+    const responseData = [...assetData]
+    responseData.push({ name: '', kode: finalCode })
+
+    Request.success(res, { data: responseData })
   } catch (error) {
     Request.error(res, error)
   }
@@ -281,9 +292,7 @@ exports.approverList = async (req, res) => {
     })
 
     const uniqueApprover = Array.from(new Set(data.map((a) => a.id))).map(
-      (id) => {
-        return data.find((a) => a.id === id)
-      }
+      (id) => data.find((a) => a.id === id)
     )
 
     Request.success(res, { data: uniqueApprover })
@@ -323,9 +332,7 @@ exports.requesterList = async (req, res) => {
     const requester = data.map((el) => el.requester)
 
     const uniqueRequester = Array.from(new Set(requester.map((a) => a.id))).map(
-      (id) => {
-        return requester.find((a) => a.id === id)
-      }
+      (id) => requester.find((a) => a.id === id)
     )
 
     Request.success(res, { data: uniqueRequester })

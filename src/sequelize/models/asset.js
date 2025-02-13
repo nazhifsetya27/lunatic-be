@@ -11,6 +11,11 @@ const Asset = sequelizeDB.define(
       type: DataTypes.STRING(36),
       primaryKey: true,
     },
+    nomor: {
+      allowNull: false,
+      type: Sequelize.NUMBER,
+      autoIncrement: true,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
