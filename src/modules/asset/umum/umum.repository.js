@@ -210,6 +210,7 @@ exports.detailData = async (req) => {
   if (!detailData) throw 'Detail data not found'
 
   const data = {
+    'nomor ID': String(detailData?.nomor).padStart(4, '0'),
     nama: detailData.name,
     kode: detailData.kode,
     kondisi: detailData?.condition?.name ?? '-',

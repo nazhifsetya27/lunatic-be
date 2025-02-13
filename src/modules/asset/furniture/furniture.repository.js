@@ -218,6 +218,7 @@ exports.detailData = async (req) => {
   if (!detailData) throw 'Detail data not found'
 
   const data = {
+    'nomor ID': String(detailData?.nomor).padStart(4, '0'),
     nama: detailData.name,
     kode: detailData.kode,
     kondisi: detailData?.condition?.name ?? '-',
@@ -244,7 +245,7 @@ exports.detailData = async (req) => {
       .locale('id')
       .format('DD MMMM YYYY • HH:mm'),
   }
-  
+
   const asset_history = detailData.asset
     .map((el) => ({
       stock_adjustment_inventory_created_at: el.created_at,
@@ -422,6 +423,7 @@ exports.printData = async (req) => {
 
     // kode - gedung - lantai - ruangan - excomp - unit - tahun
     const printCode = [
+      String(asset?.nomor).padStart(4, '0'),
       asset?.kode,
       asset?.storage?.building?.kode,
       asset?.storage?.storage_floor?.kode,

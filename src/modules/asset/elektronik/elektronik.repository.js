@@ -214,6 +214,7 @@ exports.detailData = async (req) => {
   if (!detailData) throw 'Detail data not found'
 
   const data = {
+    'nomor ID': String(detailData?.nomor).padStart(4, '0'),
     nama: detailData.name,
     kode: detailData.kode,
     kondisi: detailData?.condition?.name ?? '-',
@@ -713,7 +714,7 @@ exports.collectionExport = async (req, res) => {
         ],
       },
     ],
-    order: [['created_at', 'desc']],
+    order: [['created_at', 'asc']],
   })
 
   const workbook = new Workbook()
@@ -721,6 +722,7 @@ exports.collectionExport = async (req, res) => {
   const worksheet2 = workbook.addWorksheet('Filter')
 
   const asset_header = [
+    'Nomor ID',
     'Name', // 1
     'Kode', // 2
     'Category', // 3
@@ -737,15 +739,18 @@ exports.collectionExport = async (req, res) => {
   })
   worksheet.row(1).freeze()
   data.map((data, index) => {
-    worksheet.cell(index + 2, 1).string(data.name ?? '')
-    worksheet.cell(index + 2, 2).string(data.kode ?? '')
-    worksheet.cell(index + 2, 3).string(data.category ?? '')
+    worksheet
+      .cell(index + 2, 1)
+      .string(String(data.nomor).padStart(4, '0') ?? '')
+    worksheet.cell(index + 2, 2).string(data.name ?? '')
+    worksheet.cell(index + 2, 3).string(data.kode ?? '')
+    worksheet.cell(index + 2, 4).string(data.category ?? '')
     // worksheet.cell(index + 2, 4).string(data.quantity ?? '')
-    worksheet.cell(index + 2, 4).string(data.condition?.name ?? '')
-    worksheet.cell(index + 2, 5).string(data.storage?.unit?.name ?? '')
-    worksheet.cell(index + 2, 6).string(data.storage?.building?.name ?? '')
-    worksheet.cell(index + 2, 7).string(data.storage?.storage_floor?.name ?? '')
-    worksheet.cell(index + 2, 8).string(data.storage?.storage_room?.name ?? '')
+    worksheet.cell(index + 2, 5).string(data.condition?.name ?? '')
+    worksheet.cell(index + 2, 6).string(data.storage?.unit?.name ?? '')
+    worksheet.cell(index + 2, 7).string(data.storage?.building?.name ?? '')
+    worksheet.cell(index + 2, 8).string(data.storage?.storage_floor?.name ?? '')
+    worksheet.cell(index + 2, 9).string(data.storage?.storage_room?.name ?? '')
   })
 
   worksheet2.cell(1, 1).string('Search')
