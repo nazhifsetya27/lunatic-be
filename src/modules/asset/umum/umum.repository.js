@@ -215,9 +215,11 @@ exports.detailData = async (req) => {
     kode: detailData.kode,
     kondisi: detailData?.condition?.name ?? '-',
     kategory: detailData.category,
-    'Tanggal perolehan': moment(detailData?.acquisition_date)
-      .locale('id')
-      .format('DD MMMM YYYY • HH:mm'),
+    'Tanggal perolehan': detailData?.acquisition_date
+      ? moment(detailData?.acquisition_date)
+          .locale('id')
+          .format('DD MMMM YYYY • HH:mm')
+      : '-',
     Harga: detailData?.price
       ? new Intl.NumberFormat('id-ID', {
           style: 'currency',
@@ -235,6 +237,8 @@ exports.detailData = async (req) => {
       .locale('id')
       .format('DD MMMM YYYY • HH:mm'),
   }
+
+  console.log(detailData?.price, '<<<ass')
 
   const asset_history = detailData.asset
     .map((el) => ({

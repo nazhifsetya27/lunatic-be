@@ -219,9 +219,11 @@ exports.detailData = async (req) => {
     kode: detailData.kode,
     kondisi: detailData?.condition?.name ?? '-',
     kategory: detailData.category,
-    'Tanggal perolehan': moment(detailData?.acquisition_date)
-      .locale('id')
-      .format('DD MMMM YYYY • HH:mm'),
+    'Tanggal perolehan': detailData?.acquisition_date
+      ? moment(detailData?.acquisition_date)
+          .locale('id')
+          .format('DD MMMM YYYY • HH:mm')
+      : '-',
     Harga: detailData?.price
       ? new Intl.NumberFormat('id-ID', {
           style: 'currency',
