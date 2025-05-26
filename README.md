@@ -79,10 +79,7 @@ DB_PASSWORD=postgres
 DB_DIALECT=postgres
 DB_TIMEZONE=Asia/Jakarta
 # ── Auth ───────────────────────────
-JWT_SECRET=change-me
-JWT_EXPIRES=7d
-# ── File uploads ───────────────────
-UPLOAD_DIR=public/uploads
+JWT_SECRET_KEY=OWSVdKPdQY
 # ── CORS ───────────────────────────
 CORS_ORIGIN=http://localhost:5173
 ```
@@ -227,5 +224,3 @@ _(Modules `settings`, `storage-management`, `option`, `dashboard`, `approval`, a
 | **Uploads go to the wrong folder**                   | Check `UPLOAD_DIR` env and make sure the path exists / is writable.                  |
 
 ---
-
-Made with ❤️ in Jakarta – feel free to open an issue or MR if anything is unclear.
