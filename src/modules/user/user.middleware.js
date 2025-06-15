@@ -46,6 +46,7 @@ exports.findOneData = async (req, res, next) => {
       where: {
         id,
       },
+      paranoid: false,
       include: [
         {
           association: 'unit',

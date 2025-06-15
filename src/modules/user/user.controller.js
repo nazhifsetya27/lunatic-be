@@ -99,3 +99,26 @@ exports.deleteUser = async (req, res) => {
     Request.error(res, error)
   }
 }
+
+exports.restoreUser = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const user = await User.findOne({
+      where: {
+        id,
+      },
+      paranoid: false,
+    })
+
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    await user.restore()
+
+    Request.success(res, { message: 'Restore Data Successed' })
+  } catch (error) {
+    Request.error(res, error)
+  }
+}
