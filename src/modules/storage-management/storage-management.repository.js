@@ -206,7 +206,15 @@ exports.showData = async (req) => {
 
   switch (matches[0]) {
     case 'building_id':
-      formattedData = data.map((val) => val?.dataValues?.storage_floor)
+      formattedData = data.map((val) => {
+        const floor = val?.dataValues?.storage_floor
+        if (!floor) return null
+
+        return {
+          ...floor.get({ plain: true }), // id & name saja
+          storage_management_id: val.id, // embed FK
+        }
+      })
       category = 'Lantai'
       // To Do: menampilkan isi ruangan dari lantai
       // const containRoom = data.map((val) => val?.dataValues?.storage_room)
@@ -216,7 +224,15 @@ exports.showData = async (req) => {
       // formattedData.push({ totalRoom })
       break
     case 'floor_id':
-      formattedData = data.map((val) => val?.dataValues?.storage_room)
+      formattedData = data.map((val) => {
+        const room = val?.dataValues?.storage_room
+        if (!room) return null
+
+        return {
+          ...room.get({ plain: true }), // id & name saja
+          storage_management_id: val.id, // embed FK
+        }
+      })
       category = 'Ruangan'
       break
     default:
@@ -264,12 +280,6 @@ exports.storeData = async (req) => {
     }
 
     if (current_building_id) whereClause.building_id = current_building_id
-
-    console.log('room_ids: ', room_ids)
-    console.log('current_building_id: ', current_building_id)
-    console.log('current_floor_id: ', current_floor_id)
-
-    // throw 'yahaha'
 
     if (building_ids) {
       await Promise.all(
@@ -333,17 +343,69 @@ exports.storeData = async (req) => {
 
 exports.removeData = async (req) => {
   await sequelize.transaction(async (transaction) => {
-    const { storage_management_id } = req.params
-    console.log('storage_management_id: ', storage_management_id)
+    const { id } = req.params // storage_management-id
+    const { building_id, floor_id, room_id } = req.body // konteks level penghapusan
 
-    const storagemanagement = await Models.StorageManagement.findOne({
-      where: { id: storage_management_id },
+    /* ── ambil baris storage_management ───────────────────── */
+    const storage = await Models.StorageManagement.findOne({
+      where: { id },
+      include: [
+        { association: 'unit', attributes: ['id'], paranoid: false },
+        { association: 'building', attributes: ['id'], paranoid: false },
+        { association: 'storage_floor', attributes: ['id'], paranoid: false },
+        { association: 'storage_room', attributes: ['id'], paranoid: false },
+      ],
       paranoid: false,
       transaction,
     })
 
-    if (!storagemanagement) throw new Error('storagemanagement not found')
+    if (!storage) throw 'Storage management not found'
 
-    await storagemanagement.destroy({ req, transaction, force: true })
+    /* ========================================================
+       1) HAPUS ROOM  (semua id: building + floor + room)      
+       ───────────────────────────────────────────────────── */
+    if (building_id && floor_id && room_id) {
+      await storage.destroy({ transaction, force: true })
+      return
+    }
+
+    /* ========================================================
+       2) HAPUS FLOOR (ada building & floor  TANPA room)       
+          pastikan floor tsb tidak punya child room           
+       ───────────────────────────────────────────────────── */
+    if (building_id && floor_id && !room_id) {
+      const roomExists = await Models.StorageManagement.findOne({
+        where: {
+          building_id,
+          floor_id,
+          room_id: { [Op.ne]: null },
+        },
+        transaction,
+        paranoid: false,
+      })
+
+      if (roomExists) {
+        throw 'Cannot delete this floor because it still contains rooms'
+      }
+
+      await storage.destroy({ transaction, force: true })
+      return
+    }
+
+    /* ========================================================
+       3) HAPUS STORAGE LEVEL TERATAS                         
+          pastikan masih belum ter-relasi ke unit/building/…  
+       ───────────────────────────────────────────────────── */
+    const hasChild =
+      storage.unit !== null ||
+      storage.building !== null ||
+      storage.storage_floor !== null ||
+      storage.storage_room !== null
+
+    if (hasChild) {
+      throw 'Cannot delete this storage because it is still linked to unit, building, floor or room'
+    }
+
+    await storage.destroy({ transaction, force: true })
   })
 }
