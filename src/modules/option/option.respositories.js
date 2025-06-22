@@ -197,69 +197,87 @@ exports.assetList = async (req, res) => {
 exports.kodeList = async (req, res) => {
   try {
     const { search, category } = req.query
+    const { user } = req
 
-    const where = {}
+    /* ---------- build WHERE ---------- */
+    const where = { [Op.and]: [] }
+    if (user?.unit?.id)
+      where[Op.and].push({ '$storage.unit.id$': user.unit.id })
+
     const defaultPrefixCode = [
       { name: 'Furniture', kode: 'F1' },
       { name: 'Elektronik', kode: 'E1' },
       { name: 'Umum', kode: 'U1' },
     ]
 
-    // Validate category or use first default as fallback
-    const validatedCategory = defaultPrefixCode.some(
-      (item) => item.name === category
-    )
-      ? category
-      : defaultPrefixCode[0].name
+    const { name: validCategory, kode: fallbackKode } =
+      defaultPrefixCode.find((i) => i.name === category) ?? defaultPrefixCode[0]
 
-    if (validatedCategory) {
-      where.category = validatedCategory
-    }
+    where[Op.and].push({ category: validCategory })
 
     if (search) {
-      where[Op.or] = [{ name: { [Op.iLike]: `%${search}%` } }]
+      where[Op.and].push({ name: { [Op.iLike]: `%${search}%` } })
     }
 
-    const assetData = await Asset.findAll({
+    /* ---------- ambil aset ---------- */
+    const rawAssets = await Asset.findAll({
       where,
       attributes: ['id', 'name', 'category', 'kode'],
       order: [['name', 'asc']],
+      include: [
+        {
+          association: 'storage',
+          include: [
+            {
+              association: 'unit',
+              attributes: ['id', 'name'],
+              paranoid: false,
+            },
+            {
+              association: 'building',
+              attributes: ['id', 'name'],
+              paranoid: false,
+            },
+            {
+              association: 'storage_floor',
+              attributes: ['id', 'name'],
+              paranoid: false,
+            },
+            {
+              association: 'storage_room',
+              attributes: ['id', 'name'],
+              paranoid: false,
+            },
+          ],
+        },
+      ],
+      raw: true,
     })
 
-    // Get relevant codes
-    let arrayCode
-    if (!assetData.length) {
-      const defaultEntry =
-        defaultPrefixCode.find((item) => item.name === validatedCategory) ||
-        defaultPrefixCode[0] // Fallback to first default
-      arrayCode = [defaultEntry.kode]
-    } else {
-      arrayCode = assetData.map((val) => val.kode).filter(Boolean)
-    }
+    /* ---------- dedup kode + hitung next ---------- */
+    const uniqAssets = []
+    const seenKode = new Set()
 
-    // Fallback if codes are still empty
-    if (!arrayCode.length) {
-      arrayCode = [defaultPrefixCode[0].kode]
-    }
-
-    // Extract prefix and number safely
-    const firstCode = arrayCode[0] || 'U1' // Final fallback
-    const prefix = firstCode.slice(0, 1)
-    const numbers = arrayCode.map((code) => {
-      const numPart = code.slice(1)
-      return parseInt(numPart, 10) || 0
+    rawAssets.forEach((row) => {
+      if (row.kode && !seenKode.has(row.kode)) {
+        seenKode.add(row.kode)
+        uniqAssets.push(row)
+      }
     })
 
-    // Calculate next number (ensure minimum 1)
-    const maxNumber = Math.max(...numbers, 0) // Handle empty numbers case
-    const nextNumber = maxNumber
+    const existingCodes = [...seenKode] // array kode unik
+    const prefix = fallbackKode.slice(0, 1) // F / E / U
+    const nextNumber = existingCodes.length
+      ? Math.max(...existingCodes.map((c) => +c.slice(1) || 0)) + 1
+      : 1
 
-    // Generate final code
-    const finalCode = `${prefix}${nextNumber}`
+    const nextKode = `${prefix}${nextNumber}`
 
-    // Prepare response
-    const responseData = [...assetData]
-    responseData.push({ name: '', kode: finalCode })
+    /* ---------- susun hasil ---------- */
+    const responseData = [
+      ...uniqAssets,
+      { name: '', kode: nextKode }, // baris “dropdown default”
+    ]
 
     Request.success(res, { data: responseData })
   } catch (error) {
