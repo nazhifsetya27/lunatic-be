@@ -73,6 +73,7 @@ exports.collections = async (req) => {
     ],
     offset: (page - 1) * page_size,
     order: [['updated_at', 'DESC']],
+    // logging: console.log,
   }
 
   if (archive === '1') {

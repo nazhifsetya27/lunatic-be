@@ -7,6 +7,7 @@ const {
   detail,
   getAllUsers,
   unitList,
+  restoreUser,
 } = require('./user.controller')
 const { storeRequest, findOneData } = require('./user.middleware')
 
@@ -19,6 +20,7 @@ router.get('/unit-list', unitList)
 router.post('/', storeRequest, createUser)
 router.get('/:id', findOneData, show)
 router.get('/:id/detail', findOneData, detail)
+router.patch('/restore/:id', restoreUser)
 router.patch('/:id', findOneData, editUser)
 router.delete('/:id', deleteUser)
 
