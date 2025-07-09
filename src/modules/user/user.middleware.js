@@ -16,7 +16,7 @@ const checkValidate = async (value, { req }) => {
       email: { [Op.iLike]: body.email },
       ...(id && { id: { [Op.ne]: id } }),
     },
-    paranoid: false,
+    paranoid: true,
   })
 
   if (existingEmailUser) {
@@ -30,7 +30,7 @@ const checkValidate = async (value, { req }) => {
         unit_id: body.unit_id,
         ...(id && { id: { [Op.ne]: id } }),
       },
-      paranoid: false,
+      paranoid: true,
     })
 
     if (existingRoleUser) {

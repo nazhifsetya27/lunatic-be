@@ -103,6 +103,7 @@ exports.deleteUser = async (req, res) => {
 exports.restoreUser = async (req, res) => {
   try {
     const { id } = req.params
+    const roles = ['Administrator', 'Approver']
 
     const user = await User.findOne({
       where: {
@@ -113,6 +114,21 @@ exports.restoreUser = async (req, res) => {
 
     if (!user) {
       throw new Error('User not found')
+    }
+
+    if (roles.includes(user.role)) {
+      const usersExistsRole = await User.findOne({
+        where: {
+          role: {
+            [Op.in]: roles,
+          },
+        },
+        paranoid: false,
+      })
+
+      if (usersExistsRole) {
+        throw 'User with same roler already exists'
+      }
     }
 
     await user.restore()
