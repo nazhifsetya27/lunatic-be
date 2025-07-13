@@ -2,6 +2,7 @@ const { Request } = require('../../helper')
 const { Models } = require('../../sequelize/models')
 const { detailGeneral, collections } = require('./user.repository')
 const { Op } = require('sequelize')
+const bcrypt = require('bcryptjs')
 const { User } = Models
 
 exports.getAllUsers = async (req, res) => {
@@ -72,7 +73,9 @@ exports.editUser = async (req, res) => {
       throw new Error('Role anda tidak diizinkan')
     }
 
-    await User.update(post, { req, where: { id } })
+    post.password = bcrypt.hashSync(post.password)
+
+    await User.update(post, { where: { id }, req })
     Request.success(res, { message: 'Success' })
   } catch (error) {
     Request.error(res, error)
