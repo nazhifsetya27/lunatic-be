@@ -2,6 +2,7 @@ const { Request } = require('../../helper')
 const { Models } = require('../../sequelize/models')
 const { detailGeneral, collections } = require('./user.repository')
 const { Op } = require('sequelize')
+const bcrypt = require('bcryptjs')
 const { User } = Models
 
 exports.getAllUsers = async (req, res) => {
@@ -72,7 +73,9 @@ exports.editUser = async (req, res) => {
       throw new Error('Role anda tidak diizinkan')
     }
 
-    await User.update(post, { req, where: { id } })
+    post.password = bcrypt.hashSync(post.password)
+
+    await User.update(post, { where: { id }, req })
     Request.success(res, { message: 'Success' })
   } catch (error) {
     Request.error(res, error)
@@ -103,6 +106,7 @@ exports.deleteUser = async (req, res) => {
 exports.restoreUser = async (req, res) => {
   try {
     const { id } = req.params
+    const roles = ['Administrator', 'Approver']
 
     const user = await User.findOne({
       where: {
@@ -113,6 +117,21 @@ exports.restoreUser = async (req, res) => {
 
     if (!user) {
       throw new Error('User not found')
+    }
+
+    if (roles.includes(user.role)) {
+      const usersExistsRole = await User.findOne({
+        where: {
+          role: {
+            [Op.in]: roles,
+          },
+        },
+        paranoid: false,
+      })
+
+      if (usersExistsRole) {
+        throw 'User with same roler already exists'
+      }
     }
 
     await user.restore()
