@@ -122,15 +122,16 @@ exports.restoreUser = async (req, res) => {
     if (roles.includes(user.role)) {
       const usersExistsRole = await User.findOne({
         where: {
-          role: {
-            [Op.in]: roles,
-          },
+          role: user.role,
+          unit_id: user.unit_id,
+          deleted_at: null,
         },
-        paranoid: false,
       })
 
+      console.log(usersExistsRole, '<<<< ajaj')
+
       if (usersExistsRole) {
-        throw 'User with same roler already exists'
+        throw 'User with same role already exists'
       }
     }
 
