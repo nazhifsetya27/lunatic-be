@@ -162,18 +162,26 @@ exports.collections = async (req) => {
 }
 
 exports.showData = async (req) => {
-  const { unit_id, id } = req.params
+  const { unit_id, building_id } = req.params
+  const { floor_id, room_id, storage_management_id } = req.query
   // logic show -> kalo ada bulding, show floor, kalo floor show room
 
   if (!unit_id) throw new Error('unit_id is required!')
-  if (!id) throw new Error('id is required!')
+  if (!building_id) throw new Error('building_id is required!')
 
   const data = await Models.StorageManagement.findAll({
     where: {
       unit_id,
-      [Op.or]: [{ building_id: id }, { floor_id: id }, { room_id: id }],
+      [Op.and]: [
+        { building_id },
+        ...(floor_id ? [{ floor_id }] : []), // add only if floor_id exists
+        // ...(room_id ? [{ room_id }] : []), // add only if room_id exists
+        // { room_id: building_id },
+        // ...(storage_management_id ? [{ id: storage_management_id }] : []), // add only if storage_management_id exists
+      ],
     },
     paranoid: false,
+    logging: console.log,
     include: [
       {
         paranoid: false,
@@ -195,11 +203,12 @@ exports.showData = async (req) => {
   if (data.length < 1) throw 'Data not found'
 
   const matches = data.map((record) => {
-    if (record.building_id === id) return 'building_id'
-    if (record.floor_id === id) return 'floor_id'
-    if (record.room_id === id) return 'room_id'
+    if (record.building_id === building_id && !floor_id) return 'building_id'
+    if (record.floor_id === floor_id) return 'floor_id'
+    if (record.room_id === building_id) return 'room_id'
     return 'no_match' // fallback if no match is found in an edge case
   })
+  console.log('matches', matches)
 
   let formattedData
   let category
@@ -386,6 +395,26 @@ exports.removeData = async (req) => {
 
       if (roomExists) {
         throw 'Cannot delete this floor because it still contains rooms'
+      }
+
+      await storage.destroy({ transaction, force: true })
+      return
+    }
+
+    // building
+    if (building_id && !floor_id && !room_id) {
+      const buildingExist = await Models.StorageManagement.findOne({
+        where: {
+          building_id,
+          floor_id: { [Op.ne]: null },
+          room_id: { [Op.ne]: null },
+        },
+        transaction,
+        paranoid: false,
+      })
+
+      if (buildingExist) {
+        throw 'Cannot delete this building because it still contains floors'
       }
 
       await storage.destroy({ transaction, force: true })
