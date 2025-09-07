@@ -181,7 +181,7 @@ exports.showData = async (req) => {
       ],
     },
     paranoid: false,
-    logging: console.log,
+    // logging: console.log,
     include: [
       {
         paranoid: false,
@@ -208,7 +208,7 @@ exports.showData = async (req) => {
     if (record.room_id === building_id) return 'room_id'
     return 'no_match' // fallback if no match is found in an edge case
   })
-  console.log('matches', matches)
+  // console.log('matches', matches)
 
   let formattedData
   let category
